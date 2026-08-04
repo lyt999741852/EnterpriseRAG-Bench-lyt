@@ -1,0 +1,78 @@
+# EnterpriseRAG-Bench Pipeline Configuration
+# All API keys and model names are placeholders -- fill in before running.
+
+# ===== Data paths (relative to project root) =====
+corpus_dir: "demo_corpus"            # document corpus root (subdirs = source types)
+questions_file: "questions.jsonl"
+output_dir: "outputs"
+index_dir: ".index_cache/demo_bm25"
+
+# ===== Chunking =====
+chunking:
+  method: "fixed"                  # fixed | recursive (reserved for Phase 2)
+  version: "fixed-v2"
+  manifest_enabled: true
+  chunk_size: 512                  # tokens (approximate, based on whitespace split)
+  chunk_overlap: 0
+
+# ===== Embedding =====
+embedding:
+  provider: "ollama"                   # ollama | sentence_transformers
+  model_name: "nomic-embed-text"       # run `ollama pull nomic-embed-text` first
+  api_base: "http://localhost:11434"   # ollama default port
+  device: "cpu"                        # ignored for ollama
+  batch_size: 16                       # batch for /api/embed
+  dimension: 0                         # auto-detected on first call
+
+# ===== LLM =====
+llm:
+  provider: "openai_compatible"       # DeepSeek uses OpenAI-compatible API
+  api_base: "https://api.deepseek.com/v1"
+  api_key_env: "DEEPSEEK_API_KEY"     # set this env var before running
+  model_name: "deepseek-chat"         # deepseek-chat / deepseek-reasoner
+  temperature: 0.0
+  max_tokens: 1024
+  timeout: 60
+  retry_attempts: 3
+  retry_backoff_seconds: 1.0
+
+# ===== Retrieval =====
+retrieval:
+  method: "bm25"                      # bm25 | dense | hybrid
+  top_k: 10                           # number of chunks to retrieve
+  dense_weight: 0.5                   # hybrid fusion weight (0=bm25, 1=dense)
+  fusion_method: "rrf"
+  candidate_k: 100
+  rrf_k: 60
+  reranker:                           # optional cross-encoder reranker (reserved)
+    enabled: false
+    model_name: ""
+    top_n: 10
+
+# ===== Evaluation =====
+evaluation:
+  enabled: true
+  parallelism: 8
+  timeout: 3600
+  resume: true
+  llm:
+    provider: "openai_compatible"
+    api_base: "https://api.deepseek.com/v1"
+    api_key_env: "DEEPSEEK_API_KEY"
+    model_name: "deepseek-chat"
+    temperature: 0.0
+  no_correction: true                 # use --no-correction for stable gold labels
+
+# ===== Pipeline =====
+pipeline:
+  name: "baseline_bm25"               # run label, used in output path
+  source_filter: ["github"]           # only include questions with these source types; empty = all
+  source_filter_mode: "exact"
+  overwrite_index: false              # rebuild index even if cache exists
+  resume: true
+  checkpoint_interval: 1
+
+generation:
+  max_context_chunks: 8
+  max_chunks_per_doc: 2
+  max_document_ids: 10

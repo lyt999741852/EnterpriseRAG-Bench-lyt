@@ -1,0 +1,73 @@
+# EnterpriseRAG-Bench Pipeline Configuration - Cerebras Free Tier
+# Sign up at https://cloud.cerebras.ai -> API Keys -> create key.
+# Free: 1M tokens/day, 30 RPM, no credit card. OpenAI-compatible.
+# ⚠️ Free tier limits context to 8K tokens (keep retrieved chunks compact).
+
+# ===== Data paths =====
+corpus_dir: "demo_corpus"
+questions_file: "questions.jsonl"
+output_dir: "outputs"
+index_dir: ".index_cache/demo_bm25"
+
+# ===== Chunking =====
+chunking:
+  method: "fixed"
+  version: "fixed-v2"
+  manifest_enabled: true
+  chunk_size: 512
+  chunk_overlap: 0
+
+# ===== Embedding =====
+embedding:
+  provider: "ollama"
+  model_name: "nomic-embed-text"
+  api_base: "http://localhost:11434"
+  device: "cpu"
+  batch_size: 16
+  dimension: 0
+
+# ===== LLM (Cerebras free tier) =====
+llm:
+  provider: "openai_compatible"
+  api_base: "https://api.cerebras.ai/v1"
+  api_key_env: "CEREBRAS_API_KEY"
+  model_name: "llama3.3-70b"                # free: llama3.3-70b / llama3.1-70b / llama3.1-8b
+  temperature: 0.0
+  max_tokens: 1024
+  timeout: 60
+  retry_attempts: 3
+  retry_backoff_seconds: 1.0
+
+# ===== Retrieval =====
+retrieval:
+  method: "bm25"
+  top_k: 5                                # limit chunks due to 8K context cap
+  dense_weight: 0.5
+  reranker:
+    enabled: false
+    model_name: ""
+    top_n: 10
+
+# ===== Evaluation =====
+evaluation:
+  llm:
+    provider: "openai_compatible"
+    api_base: "https://api.cerebras.ai/v1"
+    api_key_env: "CEREBRAS_API_KEY"
+    model_name: "llama3.3-70b"
+    temperature: 0.0
+  no_correction: true
+
+# ===== Pipeline =====
+pipeline:
+  name: "baseline_cerebras"
+  source_filter: ["github"]
+  source_filter_mode: "exact"
+  overwrite_index: false
+  resume: true
+  checkpoint_interval: 1
+
+generation:
+  max_context_chunks: 5
+  max_chunks_per_doc: 2
+  max_document_ids: 10

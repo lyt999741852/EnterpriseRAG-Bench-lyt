@@ -1,0 +1,73 @@
+# EnterpriseRAG-Bench Full Corpus Evaluation (Hybrid)
+# Prerequisite: extract all_documents.zip to corpus/
+corpus_dir: "corpus/all_documents"
+questions_file: "questions.jsonl"
+output_dir: "outputs"
+index_dir: ".index_cache/full_bge_small"
+
+chunking:
+  method: "fixed"
+  version: "fixed-v2"
+  manifest_enabled: true
+  chunk_size: 512
+  chunk_overlap: 0
+
+embedding:
+  provider: "fastembed"
+  model_name: "BAAI/bge-small-en-v1.5"   # ONNX accelerated, 384 dim
+  device: "cpu"
+  batch_size: 256                          # fastembed supports large batches
+  dimension: 0
+
+llm:
+  provider: "openai_compatible"
+  api_base: "https://api.deepseek.com/v1"
+  api_key_env: "DEEPSEEK_API_KEY"
+  model_name: "deepseek-chat"
+  temperature: 0.0
+  max_tokens: 1024
+  timeout: 60
+  retry_attempts: 3
+  retry_backoff_seconds: 1.0
+
+retrieval:
+  method: "hybrid"
+  top_k: 10
+  fusion_method: "rrf"
+  candidate_k: 100
+  rrf_k: 60
+  dense_weight: 0.3
+  reranker:
+    enabled: false
+    model_name: "cross-encoder/ms-marco-MiniLM-L-6-v2"
+    candidate_k: 30
+    top_n: 10
+  parent_expansion:
+    enabled: true
+    neighbor_chunks: 1
+
+evaluation:
+  enabled: true
+  parallelism: 8
+  timeout: 3600
+  resume: true
+  llm:
+    provider: "openai_compatible"
+    api_base: "https://api.deepseek.com/v1"
+    api_key_env: "DEEPSEEK_API_KEY"
+    model_name: "deepseek-chat"
+    temperature: 0.0
+  no_correction: true
+
+pipeline:
+  name: "baseline_full"
+  source_filter: []                      # ALL 500 questions, all source types
+  source_filter_mode: "exact"
+  overwrite_index: false                 # reuse fingerprinted checkpoints
+  resume: true
+  checkpoint_interval: 1
+
+generation:
+  max_context_chunks: 8
+  max_chunks_per_doc: 2
+  max_document_ids: 10

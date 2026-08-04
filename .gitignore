@@ -1,0 +1,26 @@
+outputs/
+.index_cache/
+__pycache__/
+*.pyc
+.env
+.pytest_cache/
+.coverage
+*.tmp
+.stage/
+
+# Large local benchmark corpora and extracted inspection data
+corpus/
+demo_corpus/
+confluence/
+slice_inspect/
+*.zip
+
+# Official evaluation questions (answer leakage - never commit)
+questions.jsonl
+extra_questions.jsonl
+
+# Local tool state / agent memory
+.agents/
+.codex/
+.workbuddy/
+.pageindex_cache/

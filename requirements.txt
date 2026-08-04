@@ -1,0 +1,25 @@
+# EnterpriseRAG-Bench Pipeline Dependencies
+# Install: pip install -r requirements.txt
+
+# Core
+pyyaml>=6.0
+numpy>=1.26
+
+# BM25
+rank-bm25>=0.2.2
+
+# Embedding (stub -- uncomment and set model_name in config)
+sentence-transformers>=3.0
+
+# FAISS (CPU version for MVP)
+faiss-cpu>=1.8
+
+# ONNX embedding backend used by configs/full.yaml
+fastembed>=0.8
+
+# LLM (stub -- uses stdlib urllib, no extra deps needed for openai_compatible)
+
+# Evaluation (only needed for official eval script)
+# Install from: https://github.com/onyx-dot-app/EnterpriseRAG-Bench
+# openai>=1.0
+# tiktoken>=0.5

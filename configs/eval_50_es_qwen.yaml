@@ -1,0 +1,76 @@
+# Stage-four 50-question gate against the complete Elasticsearch index.
+corpus_dir: "corpus/all_documents"
+questions_file: "questions.jsonl"
+output_dir: "outputs"
+index_dir: ".index_cache/full_es_bge_small"
+index_backend: "elasticsearch"
+
+chunking:
+  method: "fixed"
+  version: "fixed-v2"
+  manifest_enabled: true
+  chunk_size: 512
+  chunk_overlap: 0
+
+embedding:
+  provider: "sentence_transformers"
+  model_name: "BAAI/bge-small-en-v1.5"
+  device: "cuda"
+  batch_size: 256
+  dimension: 384
+  revision: "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a"
+
+elasticsearch:
+  url: "http://127.0.0.1:9200"
+  index_name: "enterprise-rag-bge-small-v1"
+  alias_name: "enterprise-rag-bge-small"
+  bulk_size: 256
+  request_timeout: 180
+
+llm:
+  provider: "openai_compatible"
+  api_base: "http://10.72.100.35:7777/v1"
+  api_key_env: "LARK_API_KEY"
+  model_name: "lark"
+  temperature: 0.0
+  max_tokens: 4096
+  timeout: 180
+  retry_attempts: 3
+  retry_backoff_seconds: 1.0
+  extra_body:
+    chat_template_kwargs:
+      enable_thinking: false
+
+retrieval:
+  method: "hybrid"
+  top_k: 10
+  candidate_k: 100
+  fusion_method: "rrf"
+  rrf_k: 60
+  dense_weight: 0.3
+  reranker:
+    enabled: false
+  parent_expansion:
+    enabled: false
+
+generation:
+  max_context_chunks: 8
+  max_chunks_per_doc: 2
+  max_document_ids: 10
+
+evaluation:
+  enabled: true
+  parallelism: 4
+  timeout: 7200
+  resume: true
+  no_correction: true
+
+pipeline:
+  name: "eval_50_es_qwen_20260729"
+  source_filter: []
+  source_filter_mode: "exact"
+  question_limit: 50
+  overwrite_index: false
+  resume: true
+  resume_legacy: false
+  checkpoint_interval: 1

@@ -1,0 +1,32 @@
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.19.12
+    container_name: enterprise-rag-es
+    restart: unless-stopped
+    environment:
+      discovery.type: single-node
+      xpack.security.enabled: "false"
+      xpack.security.enrollment.enabled: "false"
+      ES_JAVA_OPTS: -Xms8g -Xmx8g
+      cluster.routing.allocation.disk.watermark.low: 85%
+      cluster.routing.allocation.disk.watermark.high: 90%
+      cluster.routing.allocation.disk.watermark.flood_stage: 95%
+    ports:
+      - "127.0.0.1:9200:9200"
+    volumes:
+      - /opt/enterprise-rag-es/data:/usr/share/elasticsearch/data
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl --fail --silent http://localhost:9200/_cluster/health >/dev/null || exit 1
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 40s
+    mem_limit: 16g
+    cpus: 8.0
+    ulimits:
+      nofile:
+        soft: 65535
+        hard: 65535
+

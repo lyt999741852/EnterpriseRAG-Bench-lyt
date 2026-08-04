@@ -1,0 +1,33 @@
+# EnterpriseRAG-Bench Elasticsearch single-node deployment
+# Prerequisites: Docker Desktop installed and running
+# Start:  docker-compose up -d
+# Stop:   docker-compose down
+# Status: docker-compose ps
+
+version: "3.8"
+
+services:
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.17.0
+    container_name: rag-es
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false        # local dev only, disable security
+      - xpack.security.enrollment.enabled=false
+      - "ES_JAVA_OPTS=-Xms2g -Xmx2g"       # limit heap for local dev
+      - cluster.routing.allocation.disk.watermark.low=95%
+      - cluster.routing.allocation.disk.watermark.high=97%
+    ports:
+      - "9200:9200"                           # REST API
+      - "9300:9300"                           # internal cluster communication
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q 'green\|yellow'"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+
+volumes:
+  es_data:
+    driver: local
