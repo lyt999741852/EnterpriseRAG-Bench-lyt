@@ -1,0 +1,52 @@
+# RAG 优化任务清单（2026-08-25）
+
+## 运行约定
+
+- 工作分支：`codex/semantic-a0`。
+- 冻结对照：500 题 BGE + PageIndex no-correction **55.18**；Semantic30 S1（PageIndex OFF）综合 **45.56**；AB50 PageIndex ON **59.34**。
+- 不重建或覆盖 BGE ES、manifest、冻结输出和历史 cache；每个新实验使用独立的 YAML、`pipeline.name`、output 与 PageIndex cache。
+- 线上链路只接收 question ID 与 question。`expected_doc_ids`、真实题型和评分结果只能用于运行结束后的离线诊断。
+- 不在配置、脚本、日志或本文件中写入密钥。远端访问和 rerank 仅通过环境变量提供认证。
+
+## Git 提交规则
+
+每个完成且验证通过的任务都遵循以下顺序：
+
+1. 记录任务产物、验证命令和结果到本文件或对应报告。
+2. 仅审阅本任务允许提交的文件：`git diff -- <file...>` 与 `git status --short`。
+3. 仅暂存允许提交的文件：`git add -- <file...>`；绝不使用 `git add .`。
+4. 提交到当前 `codex/semantic-a0` 分支，提交信息说明任务和验证结果。
+5. 向用户报告提交 hash、文件清单和验证结果，等待明确确认后才执行 `git push origin codex/semantic-a0`。
+
+现有工作区的其他修改、删除和未跟踪文件均为隔离内容，不属于下表的允许提交范围。
+
+## 任务队列
+
+| ID | 状态 | 工作内容 | 验证/通过门槛 | 允许提交的新增或修改文件 |
+|---|---|---|---|---|
+| A0.0 | 进行中 | 安全运行前置：以环境变量认证，核验远端 ES、reranker、LLM、manifest，以及 S1 30 题产物完整性。 | LLM、reranker、ES 均可用；S1 有 30 条 answer、trace、score；不使用含硬编码凭据的旧远程工具。 | 新的无凭据远程运行/健康检查工具（如需要）与其说明。 |
+| A0.1 | 已实现，待远端执行 | 对 S1 完成离线失败分桶。 | 30 题均有唯一 bucket：`raw_miss`、`rrf_or_rerank_drop`、`selector_drop`、`generation_gap` 或 `fully_successful`；输出汇总与逐题 JSON。 | `scripts/diag/audit_semantic_failure_layers.py`；诊断结果报告。 |
+| A1.0 | 待开始 | 增加单一、受约束的 Semantic bridge query：只能提取题干已有实体、系统、事件与时序/因果关系，不能猜答案或锁定文档。 | 10 题串行冒烟完成，答案/trace/checkpoint 完整，无索引写入。 | 新配置、实现、测试、冒烟报告。 |
+| A1.1 | 待开始 | 在固定 Semantic30、PageIndex OFF 上运行 bridge query。 | raw-miss 目标文档命中增加；综合分 **>45.56**；Invalid Extra Docs 相比 S1 不恶化超过 0.10。失败则删除该实验分支，不叠加改动。 | 实验 YAML、结果报告与 trace 清单。 |
+| A2 | 待开始 | 将通过的 bridge 结果以低权重 RRF 候选接入，限制每文档 chunk 数，无 hard document lock。 | 召回与综合均提升，extra 在门槛内；独立于 A1 记录。 | 实验 YAML、实现、测试、报告。 |
+| A3 | 待开始 | 仅处理已命中但 selector/generation 失败的样本。 | 证据覆盖改善且 extra 可控；不得与 A1/A2 混合调参。 | 独立 YAML、实现、报告。 |
+| B1 | 待开始 | Basic：生成前事实清单与引用覆盖审计，不改检索权重。 | Basic 改善；AB50 不低于 59.34 波动区间；InfoNotFound 不误答；extra 不升。 | 路由限定实现、配置、定向报告。 |
+| B2 | 待开始 | Project：项目名、组件名、路径/版本词法锚点，保持四路召回与 multi-hop。 | Project 召回和综合均提升；Basic/Semantic 不回归。 | 路由限定实现、配置、定向报告。 |
+| B3 | 待开始 | Completeness：对象清单、来源去重、缺失分面补检索、计数核验。 | 完整性和召回提升；document IDs ≤10；extra 可控。 | 路由限定实现、配置、定向报告。 |
+| A4/B4 | 待开始 | 仅合并 A、B 中各自通过的开关，接回 PageIndex ON 主链。 | AB50 无退化，Semantic 改善；分层 100 对 58.83 有可重复净增益。 | 合流 YAML、回归报告、测试。 |
+| F500 | 待开始 | 新的完整 500 题候选评测。 | 仅在 A4/B4 全通过后启动；保存 answers、配置、日志、官方 no-correction 明细与逐题 trace；不覆盖 55.18 快照。 | 新快照、报告、复现说明。 |
+| FC | 待开始 | 提交前官方 correction 复评。 | 与 no-correction 隔离保存，不混比；给出最终差异说明。 | `official_correction/` 产物索引与报告。 |
+
+## 当前执行顺序
+
+1. 用户在主机环境中设置 `EMBEDDING_API_KEY` 和 `SSH_PASS`，但不在聊天中发送其值。
+2. 完成 A0.0 的只读远端健康核验，并记录可访问性。
+3. 用 A0.1 工具对已有 S1 trace 生成失败分桶报告；只有 30 题完整归因后才设计 A1。
+4. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
+5. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
+
+## 任务记录
+
+| 日期 | ID | 结论 | 验证 | Commit | Push |
+|---|---|---|---|---|---|
+| 2026-08-25 | A0.1（工具） | 已新增离线诊断工具，待远端 S1 产物可访问后执行。 | `python -m py_compile scripts/diag/audit_semantic_failure_layers.py` 通过。 | 本次提交 | 未推送 |
