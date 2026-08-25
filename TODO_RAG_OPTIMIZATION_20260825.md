@@ -33,9 +33,10 @@
 | A3.A | 已完成 | 对 A0 的 2 个 selector drop 和 4 个 generation gap 做逐题离线证据审计。 | 2 题确认为 selector 误拒；1 题为 final chunk 缺事实且有 extra 污染；3 题为正确答案与 completeness 扣分不一致；干净生成缺口为 0。 | `scripts/diag/audit_semantic_selector_generation.py`；`docs/SEMANTIC_A3_A_SELECTOR_GENERATION_AUDIT_20260825.md`。 |
 | A3.P | 已完成 | 对 `qst_0176`、`qst_0272` 各复放 3 次冻结 selector 输入输出。 | 误拒稳定复现 6/6：模型均 accepted 目标 `[1]`、完整覆盖全部 facets，但 strict parser 因非空 `conflicts` 清空证据。 | `scripts/diag/probe_semantic_precision_selector.py`；`docs/SEMANTIC_A3_P_SELECTOR_REPLAY_20260825.md`。 |
 | A3.1 | 已完成，通过 | 仅补充 conflict 输出契约：已解决差异写入 `resolved_conflicts`；未解决矛盾继续进入阻断性 `conflicts`；strict parser 不变。 | 两目标各 3/3 恢复 `[1]`；成功/拒答控制均保持；同权威未解决冲突 3/3 拒绝。 | `scripts/diag/probe_semantic_precision_selector.py`；`docs/SEMANTIC_A3_1_CONFLICT_CONTRACT_SMOKE_20260825.md`。 |
-| A3.2 | 未通过，已停止 | conflict 契约端到端 smoke：目标题恢复，但成功控制 `qst_0182` 从正确答案退化为拒答；已回滚。 | 六题最终 recall 50%、extra 0；控制门槛失败，不运行 Semantic30。 | `scripts/remote/apply_semantic_a32_conflict_contract.py`；`scripts/diag/prepare_semantic_a32_smoke.py`；`docs/SEMANTIC_A3_2_CONFLICT_CONTRACT_E2E_SMOKE_20260826.md`。 |
-| A3.3 | 待开始 | 对 `qst_0182` 基线与失败 runtime 的 final candidate 和 selector 输出做离线差异审计；不接入 Basic 全路由。 | 定位契约造成的冲突声明/覆盖门控/候选变化；未定位前不再运行在线 smoke。 | 离线诊断工具与报告。 |
-| A3 | 未通过，已停止 | A3.1 仅 selector-only 通过；A3.2 端到端控制退化，暂不运行 Semantic30。 | 需 A3.3 先找到题型限定或窄化契约，再重新申请单变量 smoke。 | 后续独立实验。 |
+| A3.2 | 已完成，通过 | conflict 契约末尾字节与 selector-only 复放对齐后，运行两目标加四控制端到端 smoke。 | 六题 recall 66.7%、extra 0；两目标及 q182 恢复，四控制无退化。 | `scripts/remote/apply_semantic_a32_conflict_contract.py`；`scripts/diag/prepare_semantic_a32_smoke.py`；`docs/SEMANTIC_A3_2_CONFLICT_CONTRACT_E2E_SMOKE_20260826.md`。 |
+| A3.3 | 已完成 | 对 q182 的候选集合和 runtime/selector prompt 对齐做离线差异审计。 | 候选 30 chunk 完全相同；根因为应用脚本少一个换行；修正后 q182 通过。 | `docs/SEMANTIC_A3_3_Q182_PROMPT_ALIGNMENT_20260826.md`。 |
+| A3.4 | 待开始 | 将已验证 conflict 契约接入固定 Semantic30，单独评测 selector drop 是否改善。 | 保存完整 answers/trace/评分；selector drop 改善且 extra 不恶化，否则回滚停止。 | 独立配置、应用/回滚、结果报告。 |
+| A3 | 待 A3.4 | 仅在 A3.2/A3.3 通过后运行固定 Semantic30；generation gap 仍不处理。 | selector drop 改善且 extra 可控；不得与 A1/A2 混合调参。 | 独立 YAML、结果与报告。 |
 | B1.A | 已完成 | 对 AB50 的 Basic 子集做离线覆盖审计。 | 18 题中 3 题为文档已命中、答案正确但完整性不足；4 题为检索/引用问题，排除在生成改动外。 | `scripts/diag/audit_basic_coverage.py`；`docs/BASIC_AB50_B1_AUDIT_20260825.md`。 |
 | B1 | 未通过，已停止 | Basic：生成前事实清单与引用覆盖审计，不改检索权重。固定 Smoke10 中 3 个目标题完整度均未改善，且存在非 Basic 对照退化。 | 仅完成 Smoke10；不满足 Basic 改善门槛，未运行 AB50。 | 配置、最小应用/回滚脚本、失败报告。 |
 | B2.A | 已完成 | 对 AB50 的 Project 子集做逐目标文档的离线阶段覆盖审计。 | 4 题：1 个 generation coverage gap、3 个 retrieval/citation gap；已区分 raw、rerank、final 与 submitted 覆盖。 | `scripts/diag/audit_project_coverage.py`；`docs/PROJECT_AB50_B2_DIAGNOSTIC_20260825.md`。 |
@@ -52,7 +53,7 @@
 
 1. A0.0/A0.1 已完成，A1.P 未通过并已停止；不创建 A1/A2 主链配置。
 2. B1.A 已完成；B1 Smoke10 未通过，已回滚实验规则，不运行 AB50。
-3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1 已完成，A3.2 未通过并回滚；下一任务为 A3.3 的 `qst_0182` 离线差异审计。
+3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1/A3.2/A3.3 已完成，下一任务为 A3.4 固定 Semantic30 selector smoke。
 4. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
 5. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
 
@@ -74,4 +75,5 @@
 | 2026-08-25 | A3.A | 六题审计完成：2 个 selector 真实误拒；4 个 generation gap 中 1 个为 chunk 覆盖/污染，3 个为评分完整性不一致，生成优化目标为 0。 | 冻结 S1 精确 chunk 审计；见 A3.A 报告。 | 本次提交 | 待确认 |
 | 2026-08-25 | A3.P | 两题各复放 3 次均稳定误拒；模型实际接纳目标并完成覆盖，strict parser 因已解决冲突仍列入 `conflicts` 而清空证据。 | 6 次 selector-only 调用、原始响应逐次一致；见 A3.P 报告。 | 本次提交 | 待确认 |
 | 2026-08-25 | A3.1 | conflict 契约单变量 smoke 通过：两目标稳定恢复，四道冻结控制保持，同权威未解决冲突稳定拒绝。 | 七题 smoke + 三类稳定性复放；见 A3.1 报告。 | 本次提交 | 待确认 |
-| 2026-08-26 | A3.2 | 端到端 smoke 未通过：q176/q272 恢复，但成功控制 q182 退化为拒答；已回滚，不运行 Semantic30。 | 修正版六题 pipeline；见 A3.2 报告。 | 本次提交 | 待确认 |
+| 2026-08-26 | A3.2 | 端到端 smoke 通过：q176/q272/q182 恢复，q177 保持，q220/q260 保持拒答；已回滚 runtime 补丁。 | 精确对齐版本六题 pipeline，recall 66.7%、extra 0；见 A3.2 报告。 | 本次提交 | 待确认 |
+| 2026-08-26 | A3.3 | q182 候选集合无变化，根因是应用脚本少一个换行；修正后 selector 与 runtime 字节对齐。 | 5 次 selector 复放 + q182 单题端到端；见 A3.3 报告。 | 本次提交 | 待确认 |

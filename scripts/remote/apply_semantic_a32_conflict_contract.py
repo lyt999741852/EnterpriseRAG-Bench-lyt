@@ -12,7 +12,7 @@ BACKUP = Path("src/generator.py.a32_conflict_contract.bak")
 TEMPLATE_END = """  "conflicts": []
 }}
 """
-CONTRACT = """\nConflict reporting contract:
+CONTRACT = """\n\nConflict reporting contract:
 - `conflicts` is a blocking field. Put only contradictions that remain unresolved after
   applying explicit final/current/canonical/applicable-source precedence in `conflicts`.
 - When an accepted passage is explicitly final, current, canonical, or otherwise applicable
