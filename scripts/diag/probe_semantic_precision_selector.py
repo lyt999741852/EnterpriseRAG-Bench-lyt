@@ -25,6 +25,46 @@ from src.generator import (
 from src.llm import LLMConfig, create_llm_client
 
 
+RESOLVED_CONFLICT_CONTRACT = """
+
+Conflict reporting contract:
+- `conflicts` is a blocking field. Put only contradictions that remain unresolved after
+  applying explicit final/current/canonical/applicable-source precedence in `conflicts`.
+- When an accepted passage is explicitly final, current, canonical, or otherwise applicable
+  and competing passages are rejected as older, draft, or differently scoped, record those
+  resolved discrepancies in `resolved_conflicts`, not in `conflicts`.
+- If two contradictory passages have equal authority/status and no explicit precedence resolves
+  them, keep the contradiction in `conflicts`, set coverage_complete=false, and do not admit
+  either concrete conflicting value as an answer fact.
+- Never set coverage_complete=true while blocking `conflicts` is non-empty.
+- Return `resolved_conflicts` as a JSON list in addition to the existing fields.
+"""
+
+SYNTHETIC_UNRESOLVED_QUESTION = (
+    "What is the exact current approved maximum batch size for the Orion gateway?"
+)
+SYNTHETIC_UNRESOLVED_CANDIDATES = [
+    {
+        "chunk_id": "synthetic-current-a",
+        "document_id": "synthetic-policy-a",
+        "source_type": "policy",
+        "text": (
+            "Orion Gateway Policy. Status: current and approved. Authority: platform policy. "
+            "The maximum batch size is 10 requests."
+        ),
+    },
+    {
+        "chunk_id": "synthetic-current-b",
+        "document_id": "synthetic-policy-b",
+        "source_type": "policy",
+        "text": (
+            "Orion Gateway Policy. Status: current and approved. Authority: platform policy. "
+            "The maximum batch size is 20 requests."
+        ),
+    },
+]
+
+
 def load_jsonl(path: Path) -> dict[str, dict[str, Any]]:
     rows: dict[str, dict[str, Any]] = {}
     for line_number, line in enumerate(path.read_text(encoding="utf-8").splitlines(), 1):
@@ -143,6 +183,22 @@ def bounded_candidates(
     return selected
 
 
+def replay_attempts(
+    llm: Any, prompt: str, candidate_count: int, repetitions: int
+) -> list[dict[str, Any]]:
+    attempts: list[dict[str, Any]] = []
+    for repetition in range(1, repetitions + 1):
+        response = llm.generate(
+            prompt, PRECISION_EVIDENCE_SELECTION_SYSTEM_PROMPT
+        ).strip()
+        attempts.append({
+            "repetition": repetition,
+            "raw_response": response,
+            "strict_result": parse_strict_precision(response, candidate_count),
+        })
+    return attempts
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--questions", type=Path, required=True)
@@ -150,6 +206,12 @@ def main() -> int:
     parser.add_argument("--config", type=Path, required=True)
     parser.add_argument("--question-id", action="append", required=True)
     parser.add_argument("--repetitions", type=int, default=3)
+    parser.add_argument(
+        "--conflict-contract",
+        choices=("frozen", "resolved_v1"),
+        default="frozen",
+    )
+    parser.add_argument("--include-synthetic-unresolved-control", action="store_true")
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.repetitions < 1:
@@ -196,16 +258,9 @@ def main() -> int:
             max_chunks=max_chunks,
             mode_rules=Generator._question_type_rules(question_type),
         )
-        attempts: list[dict[str, Any]] = []
-        for repetition in range(1, args.repetitions + 1):
-            response = llm.generate(
-                prompt, PRECISION_EVIDENCE_SELECTION_SYSTEM_PROMPT
-            ).strip()
-            attempts.append({
-                "repetition": repetition,
-                "raw_response": response,
-                "strict_result": parse_strict_precision(response, len(candidates)),
-            })
+        if args.conflict_contract == "resolved_v1":
+            prompt += RESOLVED_CONFLICT_CONTRACT
+        attempts = replay_attempts(llm, prompt, len(candidates), args.repetitions)
         reports.append({
             "question_id": question_id,
             "question": question,
@@ -226,11 +281,49 @@ def main() -> int:
             "attempts": attempts,
         })
 
+    if args.include_synthetic_unresolved_control:
+        candidates = SYNTHETIC_UNRESOLVED_CANDIDATES
+        documents = "\n\n".join(
+            f"[{index}] (source: {chunk['source_type']}, doc_id: {chunk['document_id']})\n"
+            f"{chunk['text']}"
+            for index, chunk in enumerate(candidates, 1)
+        )
+        prompt = PRECISION_EVIDENCE_SELECTION_USER_TEMPLATE.format(
+            question=SYNTHETIC_UNRESOLVED_QUESTION,
+            documents=documents,
+            max_chunks=max_chunks,
+            mode_rules=Generator._question_type_rules("basic"),
+        )
+        if args.conflict_contract == "resolved_v1":
+            prompt += RESOLVED_CONFLICT_CONTRACT
+        reports.append({
+            "question_id": "synthetic_unresolved_equal_authority",
+            "question": SYNTHETIC_UNRESOLVED_QUESTION,
+            "question_type": "basic",
+            "route_action": "synthetic_selector_only",
+            "candidate_count": len(candidates),
+            "candidates": [
+                {
+                    "index": index,
+                    "chunk_id": chunk["chunk_id"],
+                    "document_id": chunk["document_id"],
+                    "source_type": chunk["source_type"],
+                }
+                for index, chunk in enumerate(candidates, 1)
+            ],
+            "prompt_sha256": hashlib.sha256(prompt.encode("utf-8")).hexdigest(),
+            "prompt": prompt,
+            "attempts": replay_attempts(
+                llm, prompt, len(candidates), args.repetitions
+            ),
+        })
+
     payload = {
         "schema_version": 1,
         "scope": "offline precision-v3 selector replay; no answer generation",
         "question_count": len(reports),
         "repetitions": args.repetitions,
+        "conflict_contract": args.conflict_contract,
         "reports": reports,
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
