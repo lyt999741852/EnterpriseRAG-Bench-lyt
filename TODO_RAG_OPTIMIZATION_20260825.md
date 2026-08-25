@@ -31,6 +31,7 @@
 | A1.1 | 待开始 | 在固定 Semantic30、PageIndex OFF 上运行 bridge query。 | raw-miss 目标文档命中增加；综合分 **>45.56**；Invalid Extra Docs 相比 S1 不恶化超过 0.10。失败则删除该实验分支，不叠加改动。 | 实验 YAML、结果报告与 trace 清单。 |
 | A2 | 待开始 | 将通过的 bridge 结果以低权重 RRF 候选接入，限制每文档 chunk 数，无 hard document lock。 | 召回与综合均提升，extra 在门槛内；独立于 A1 记录。 | 实验 YAML、实现、测试、报告。 |
 | A3 | 待开始 | 仅处理已命中但 selector/generation 失败的样本。 | 证据覆盖改善且 extra 可控；不得与 A1/A2 混合调参。 | 独立 YAML、实现、报告。 |
+| B1.A | 已完成 | 对 AB50 的 Basic 子集做离线覆盖审计。 | 18 题中 3 题为文档已命中、答案正确但完整性不足；4 题为检索/引用问题，排除在生成改动外。 | `scripts/diag/audit_basic_coverage.py`；`docs/BASIC_AB50_B1_AUDIT_20260825.md`。 |
 | B1 | 待开始 | Basic：生成前事实清单与引用覆盖审计，不改检索权重。 | Basic 改善；AB50 不低于 59.34 波动区间；InfoNotFound 不误答；extra 不升。 | 路由限定实现、配置、定向报告。 |
 | B2 | 待开始 | Project：项目名、组件名、路径/版本词法锚点，保持四路召回与 multi-hop。 | Project 召回和综合均提升；Basic/Semantic 不回归。 | 路由限定实现、配置、定向报告。 |
 | B3 | 待开始 | Completeness：对象清单、来源去重、缺失分面补检索、计数核验。 | 完整性和召回提升；document IDs ≤10；extra 可控。 | 路由限定实现、配置、定向报告。 |
@@ -41,7 +42,7 @@
 ## 当前执行顺序
 
 1. A0.0/A0.1 已完成，A1.P 未通过并已停止；不创建 A1/A2 主链配置。
-2. 转入 B1 的 Basic 覆盖审计，保持与 Semantic 路线完全隔离。
+2. B1.A 已完成；实现仅 Basic 路由的受证据事实清单，先进行固定 10 题串行冒烟。
 3. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
 4. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
 
@@ -53,3 +54,4 @@
 | 2026-08-25 | A0.0 | 服务、manifest 和 S1 产物均健康；无活动评测进程。 | 只读远端预检全部通过。 | 本次提交 | 待确认 |
 | 2026-08-25 | A0.1（执行） | 30 题完整归因：raw 9、RRF/rerank 3、selector 2、generation 4、成功 12。 | 生成并取回 `failure_layers.json`；见 A0 报告。 | 本次提交 | 待确认 |
 | 2026-08-25 | A1.P | 9 条 bridge query 均有效生成，但目标文档命中为 0/9，已停止该路线。 | 生成并取回 `a1_bridge_probe.json`；见 A1 报告。 | 本次提交 | 待确认 |
+| 2026-08-25 | B1.A | AB50 Basic：成功 11、生成覆盖缺口 3、检索/引用缺口 4。 | 生成并取回 `basic_coverage_audit.json`；见 B1 报告。 | 本次提交 | 待确认 |
