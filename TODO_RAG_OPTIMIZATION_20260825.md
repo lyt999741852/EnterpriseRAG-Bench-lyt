@@ -33,7 +33,8 @@
 | A3 | 待开始 | 仅处理已命中但 selector/generation 失败的样本。 | 证据覆盖改善且 extra 可控；不得与 A1/A2 混合调参。 | 独立 YAML、实现、报告。 |
 | B1.A | 已完成 | 对 AB50 的 Basic 子集做离线覆盖审计。 | 18 题中 3 题为文档已命中、答案正确但完整性不足；4 题为检索/引用问题，排除在生成改动外。 | `scripts/diag/audit_basic_coverage.py`；`docs/BASIC_AB50_B1_AUDIT_20260825.md`。 |
 | B1 | 未通过，已停止 | Basic：生成前事实清单与引用覆盖审计，不改检索权重。固定 Smoke10 中 3 个目标题完整度均未改善，且存在非 Basic 对照退化。 | 仅完成 Smoke10；不满足 Basic 改善门槛，未运行 AB50。 | 配置、最小应用/回滚脚本、失败报告。 |
-| B2 | 待开始 | Project：项目名、组件名、路径/版本词法锚点，保持四路召回与 multi-hop。 | Project 召回和综合均提升；Basic/Semantic 不回归。 | 路由限定实现、配置、定向报告。 |
+| B2.A | 已完成 | 对 AB50 的 Project 子集做逐目标文档的离线阶段覆盖审计。 | 4 题：1 个 generation coverage gap、3 个 retrieval/citation gap；已区分 raw、rerank、final 与 submitted 覆盖。 | `scripts/diag/audit_project_coverage.py`；`docs/PROJECT_AB50_B2_DIAGNOSTIC_20260825.md`。 |
+| B2 | 待开始 | Project：项目名、组件名、路径/版本词法锚点，保持四路召回与 multi-hop。先完成 B2.P 的只读 probe，不直接接入统一锚点。 | Project 召回和综合均提升；Basic/Semantic 不回归。 | 路由限定实现、配置、定向报告。 |
 | B3 | 待开始 | Completeness：对象清单、来源去重、缺失分面补检索、计数核验。 | 完整性和召回提升；document IDs ≤10；extra 可控。 | 路由限定实现、配置、定向报告。 |
 | A4/B4 | 待开始 | 仅合并 A、B 中各自通过的开关，接回 PageIndex ON 主链。 | AB50 无退化，Semantic 改善；分层 100 对 58.83 有可重复净增益。 | 合流 YAML、回归报告、测试。 |
 | F500 | 待开始 | 新的完整 500 题候选评测。 | 仅在 A4/B4 全通过后启动；保存 answers、配置、日志、官方 no-correction 明细与逐题 trace；不覆盖 55.18 快照。 | 新快照、报告、复现说明。 |
@@ -43,7 +44,7 @@
 
 1. A0.0/A0.1 已完成，A1.P 未通过并已停止；不创建 A1/A2 主链配置。
 2. B1.A 已完成；B1 Smoke10 未通过，已回滚实验规则，不运行 AB50。
-3. 下一候选工作为 B2 的 Project 离线失败分桶与只读证据诊断；通过诊断门禁后才提出最小路由实现。
+3. B2.A 已完成；下一候选工作为 B2.P：对 raw 覆盖不足与 rerank 丢弃分别进行问题文本约束的只读 probe，通过诊断门禁后才提出最小路由实现。
 4. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
 5. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
 
@@ -57,3 +58,4 @@
 | 2026-08-25 | A1.P | 9 条 bridge query 均有效生成，但目标文档命中为 0/9，已停止该路线。 | 生成并取回 `a1_bridge_probe.json`；见 A1 报告。 | 本次提交 | 待确认 |
 | 2026-08-25 | B1.A | AB50 Basic：成功 11、生成覆盖缺口 3、检索/引用缺口 4。 | 生成并取回 `basic_coverage_audit.json`；见 B1 报告。 | 本次提交 | 待确认 |
 | 2026-08-25 | B1 | Smoke10 未通过：三个 Basic 目标题完整度仍为 80/75/50；不启动 AB50。 | 10 answer、10 trace、10 官方 no-correction 评分；见 B1 Smoke 报告。 | 本次提交 | 待确认 |
+| 2026-08-25 | B2.A | Project 逐文档诊断完成：1 生成缺口、3 检索/引用缺口；不直接接入统一锚点。 | 4 题逐阶段覆盖审计；见 B2 Project 报告。 | 本次提交 | 待确认 |
