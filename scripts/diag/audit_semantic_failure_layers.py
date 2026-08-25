@@ -101,12 +101,20 @@ def classify(
     submitted_hit = bool(submitted_documents & expected_document_ids)
     answer_correct = bool_value(score.get("answer_correct", False))
     completeness_pct = float(score.get("completeness_pct", 0.0) or 0.0)
+    initially_dropped = raw_hit and (not pre_rerank_hit or not post_rerank_hit)
+    recovered_after_initial_drop = (
+        initially_dropped
+        and final_context_hit
+        and submitted_hit
+        and answer_correct
+        and completeness_pct >= 99.99
+    )
 
     # The bucket names are mutually exclusive.  More granular stage booleans
     # remain in each row so an analyst can distinguish RRF fusion from rerank.
     if not raw_hit:
         bucket = "raw_miss"
-    elif not pre_rerank_hit or not post_rerank_hit:
+    elif initially_dropped and not recovered_after_initial_drop:
         bucket = "rrf_or_rerank_drop"
     elif not final_context_hit or not submitted_hit:
         bucket = "selector_drop"
@@ -123,6 +131,7 @@ def classify(
         "raw_view_hit_names": view_hits,
         "pre_rerank_hit": pre_rerank_hit,
         "post_rerank_hit": post_rerank_hit,
+        "recovered_after_initial_drop": recovered_after_initial_drop,
         "final_context_hit": final_context_hit,
         "submitted_document_hit": submitted_hit,
         "answer_correct": answer_correct,
@@ -150,7 +159,16 @@ def main() -> int:
     traces = load_jsonl(args.traces)
     answers = load_jsonl(args.answers)
     scores = score_rows(args.results)
-    selected_ids = set(args.question_ids or questions)
+    # A completed evaluation artifact is the authoritative default scope.  This
+    # prevents a fixed Semantic run from accidentally iterating unrelated
+    # questions in the corpus that were never scored (or have no offline gold).
+    selected_ids = (
+        set(args.question_ids)
+        if args.question_ids
+        else set(traces) & set(answers) & set(scores)
+    )
+    if not selected_ids:
+        raise ValueError("no completed question IDs were found in the evaluation artifacts")
 
     rows: list[dict[str, Any]] = []
     missing: dict[str, list[str]] = {}

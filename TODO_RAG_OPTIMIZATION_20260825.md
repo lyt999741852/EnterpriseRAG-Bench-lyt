@@ -24,8 +24,8 @@
 
 | ID | 状态 | 工作内容 | 验证/通过门槛 | 允许提交的新增或修改文件 |
 |---|---|---|---|---|
-| A0.0 | 进行中 | 安全运行前置：以环境变量认证，核验远端 ES、reranker、LLM、manifest，以及 S1 30 题产物完整性。 | LLM、reranker、ES 均可用；S1 有 30 条 answer、trace、score；不使用含硬编码凭据的旧远程工具。 | 新的无凭据远程运行/健康检查工具（如需要）与其说明。 |
-| A0.1 | 已实现，待远端执行 | 对 S1 完成离线失败分桶。 | 30 题均有唯一 bucket：`raw_miss`、`rrf_or_rerank_drop`、`selector_drop`、`generation_gap` 或 `fully_successful`；输出汇总与逐题 JSON。 | `scripts/diag/audit_semantic_failure_layers.py`；诊断结果报告。 |
+| A0.0 | 已完成 | 安全运行前置：以环境变量认证，核验远端 ES、reranker、LLM、manifest，以及 S1 30 题产物完整性。 | LLM、reranker、ES 均可用；S1 有 30 条 answer、trace、score；不使用含硬编码凭据的旧远程工具。 | `scripts/remote/_remote.py`、`scripts/remote/a0_preflight_semantic30.sh`。 |
+| A0.1 | 已完成 | 对 S1 完成离线失败分桶。 | 30 题均有唯一 bucket：`raw_miss`、`rrf_or_rerank_drop`、`selector_drop`、`generation_gap` 或 `fully_successful`；输出汇总与逐题 JSON。 | `scripts/diag/audit_semantic_failure_layers.py`；`docs/SEMANTIC30_S1_A0_DIAGNOSTIC_20260825.md`。 |
 | A1.0 | 待开始 | 增加单一、受约束的 Semantic bridge query：只能提取题干已有实体、系统、事件与时序/因果关系，不能猜答案或锁定文档。 | 10 题串行冒烟完成，答案/trace/checkpoint 完整，无索引写入。 | 新配置、实现、测试、冒烟报告。 |
 | A1.1 | 待开始 | 在固定 Semantic30、PageIndex OFF 上运行 bridge query。 | raw-miss 目标文档命中增加；综合分 **>45.56**；Invalid Extra Docs 相比 S1 不恶化超过 0.10。失败则删除该实验分支，不叠加改动。 | 实验 YAML、结果报告与 trace 清单。 |
 | A2 | 待开始 | 将通过的 bridge 结果以低权重 RRF 候选接入，限制每文档 chunk 数，无 hard document lock。 | 召回与综合均提升，extra 在门槛内；独立于 A1 记录。 | 实验 YAML、实现、测试、报告。 |
@@ -39,14 +39,15 @@
 
 ## 当前执行顺序
 
-1. 用户在主机环境中设置 `EMBEDDING_API_KEY` 和 `SSH_PASS`，但不在聊天中发送其值。
-2. 完成 A0.0 的只读远端健康核验，并记录可访问性。
-3. 用 A0.1 工具对已有 S1 trace 生成失败分桶报告；只有 30 题完整归因后才设计 A1。
-4. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
-5. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
+1. A0.0/A0.1 已完成；先审阅并提交本轮预检、诊断工具和报告。
+2. 设计 A1 的单一 bridge query 及独立 YAML；先执行 10 题串行冒烟。
+3. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
+4. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
 
 ## 任务记录
 
 | 日期 | ID | 结论 | 验证 | Commit | Push |
 |---|---|---|---|---|---|
-| 2026-08-25 | A0.1（工具） | 已新增离线诊断工具，待远端 S1 产物可访问后执行。 | `python -m py_compile scripts/diag/audit_semantic_failure_layers.py` 通过。 | 本次提交 | 未推送 |
+| 2026-08-25 | A0.1（工具） | 已新增离线诊断工具。 | `python -m py_compile scripts/diag/audit_semantic_failure_layers.py` 通过。 | d967a56 | 已推送 |
+| 2026-08-25 | A0.0 | 服务、manifest 和 S1 产物均健康；无活动评测进程。 | 只读远端预检全部通过。 | 本次提交 | 待确认 |
+| 2026-08-25 | A0.1（执行） | 30 题完整归因：raw 9、RRF/rerank 3、selector 2、generation 4、成功 12。 | 生成并取回 `failure_layers.json`；见 A0 报告。 | 本次提交 | 待确认 |
