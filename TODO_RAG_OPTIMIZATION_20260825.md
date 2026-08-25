@@ -38,7 +38,7 @@
 | B2 | 未通过，已停止 | Project：不直接接入统一项目名、组件名、路径/版本词法锚点。 | 不存在可隔离且未被基线覆盖的锚点变量；不运行 smoke/AB50。 | B2.A/B2.P 诊断报告。 |
 | B3.A | 已完成 | 对 AB50 的 Completeness 子集做逐目标文档的离线阶段覆盖审计。 | 2 题均为检索/引用缺口，但一题是 selector/citation 缩减，另一题同时为 raw/rerank/final 缺口。 | `scripts/diag/audit_project_coverage.py`；`docs/COMPLETENESS_AB50_B3_DIAGNOSTIC_20260825.md`。 |
 | B3.P | 已完成 | 将 Completeness 的 selector/citation 与 raw/rerank 路径分开只读验证。 | `qst_0432` 不具备独立检索变量；`qst_0447` 的多分面计划被单文档模式抵消，放行 question-only 多文档计划候选。 | `docs/COMPLETENESS_B3P_ISOLATED_PROBES_20260825.md`。 |
-| B3.1 | 待开始 | 对题干规划出多个独立分面及多环境硬约束的问题，启用多文档证据计划；不强制 benchmark 题型。 | 固定 smoke 中 `qst_0447` final/submitted 覆盖提升，`qst_0432` 不恶化，extra 不升，完成官方 no-correction 评分。 | 路由限定实现、配置、测试、定向报告。 |
+| B3.1 | 未通过，已停止 | 对题干规划出多个独立分面及多环境硬约束的问题，启用多文档证据计划；不强制 benchmark 题型。 | Smoke10 已完成，但 `qst_0447` 仍为 0% recall/0% completeness/extra 1；所有控制题无变化，不运行 AB50。 | 独立配置、精确应用/回滚脚本、失败报告。 |
 | A4/B4 | 待开始 | 仅合并 A、B 中各自通过的开关，接回 PageIndex ON 主链。 | AB50 无退化，Semantic 改善；分层 100 对 58.83 有可重复净增益。 | 合流 YAML、回归报告、测试。 |
 | F500 | 待开始 | 新的完整 500 题候选评测。 | 仅在 A4/B4 全通过后启动；保存 answers、配置、日志、官方 no-correction 明细与逐题 trace；不覆盖 55.18 快照。 | 新快照、报告、复现说明。 |
 | FC | 待开始 | 提交前官方 correction 复评。 | 与 no-correction 隔离保存，不混比；给出最终差异说明。 | `official_correction/` 产物索引与报告。 |
@@ -47,7 +47,7 @@
 
 1. A0.0/A0.1 已完成，A1.P 未通过并已停止；不创建 A1/A2 主链配置。
 2. B1.A 已完成；B1 Smoke10 未通过，已回滚实验规则，不运行 AB50。
-3. B2.A/B2.P 已完成且 B2 已停止；B3.A/B3.P 已完成，下一候选工作为 B3.1 的 question-only 多文档证据计划 smoke。
+3. B2 与 B3.1 均已停止；下一候选工作为 A3.A，对 A0 的 selector/generation 失败样本做逐题离线证据覆盖审计。
 4. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
 5. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
 
@@ -65,3 +65,4 @@
 | 2026-08-25 | B2.P | 锚点 probe 资格未通过：完整题干与分面查询已在基线执行，B2 停止。 | 只读检查基线路由 trace；见 B2.P 报告。 | 本次提交 | 待确认 |
 | 2026-08-25 | B3.A | Completeness：两题均为检索/引用缺口，但失败层不同；不混合调参。 | 2 题逐阶段覆盖审计；见 B3 报告。 | 本次提交 | 待确认 |
 | 2026-08-25 | B3.P | 两条隔离诊断完成：仅 `qst_0447` 放行多分面多文档计划候选。 | 只读检查 PageIndex plan、follow-up、selected docs 及 rerank 位次；见 B3.P 报告。 | 本次提交 | 待确认 |
+| 2026-08-25 | B3.1 | Smoke10 未通过：目标和 8 个控制题均与基线无变化；已回滚，不运行 AB50。 | 10 answer、10 trace、10 官方 no-correction 评分；见 B3.1 报告。 | 本次提交 | 待确认 |
