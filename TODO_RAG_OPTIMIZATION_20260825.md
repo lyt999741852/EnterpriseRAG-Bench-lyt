@@ -30,7 +30,9 @@
 | A1.0 | 待开始 | 增加单一、受约束的 Semantic bridge query：只能提取题干已有实体、系统、事件与时序/因果关系，不能猜答案或锁定文档。 | 10 题串行冒烟完成，答案/trace/checkpoint 完整，无索引写入。 | 新配置、实现、测试、冒烟报告。 |
 | A1.1 | 待开始 | 在固定 Semantic30、PageIndex OFF 上运行 bridge query。 | raw-miss 目标文档命中增加；综合分 **>45.56**；Invalid Extra Docs 相比 S1 不恶化超过 0.10。失败则删除该实验分支，不叠加改动。 | 实验 YAML、结果报告与 trace 清单。 |
 | A2 | 待开始 | 将通过的 bridge 结果以低权重 RRF 候选接入，限制每文档 chunk 数，无 hard document lock。 | 召回与综合均提升，extra 在门槛内；独立于 A1 记录。 | 实验 YAML、实现、测试、报告。 |
-| A3 | 待开始 | 仅处理已命中但 selector/generation 失败的样本。 | 证据覆盖改善且 extra 可控；不得与 A1/A2 混合调参。 | 独立 YAML、实现、报告。 |
+| A3.A | 已完成 | 对 A0 的 2 个 selector drop 和 4 个 generation gap 做逐题离线证据审计。 | 2 题确认为 selector 误拒；1 题为 final chunk 缺事实且有 extra 污染；3 题为正确答案与 completeness 扣分不一致；干净生成缺口为 0。 | `scripts/diag/audit_semantic_selector_generation.py`；`docs/SEMANTIC_A3_A_SELECTOR_GENERATION_AUDIT_20260825.md`。 |
+| A3.P | 待开始 | 仅对 `qst_0176`、`qst_0272` 复放冻结最终证据下的 selector 输入输出，定位误拒来源。 | 两题均能稳定复现误拒，并能定位到 selector 规则或解析；不得读取 gold facts 构造在线输入，不运行生成。 | 离线 probe、原始响应摘要、诊断报告。 |
+| A3 | 待 A3.P | 仅在 A3.P 通过后，对 selector 做单变量 smoke；generation 路线当前不放行。 | 证据覆盖改善且 extra 可控；不得与 A1/A2 混合调参。 | 独立 YAML、实现、测试、报告。 |
 | B1.A | 已完成 | 对 AB50 的 Basic 子集做离线覆盖审计。 | 18 题中 3 题为文档已命中、答案正确但完整性不足；4 题为检索/引用问题，排除在生成改动外。 | `scripts/diag/audit_basic_coverage.py`；`docs/BASIC_AB50_B1_AUDIT_20260825.md`。 |
 | B1 | 未通过，已停止 | Basic：生成前事实清单与引用覆盖审计，不改检索权重。固定 Smoke10 中 3 个目标题完整度均未改善，且存在非 Basic 对照退化。 | 仅完成 Smoke10；不满足 Basic 改善门槛，未运行 AB50。 | 配置、最小应用/回滚脚本、失败报告。 |
 | B2.A | 已完成 | 对 AB50 的 Project 子集做逐目标文档的离线阶段覆盖审计。 | 4 题：1 个 generation coverage gap、3 个 retrieval/citation gap；已区分 raw、rerank、final 与 submitted 覆盖。 | `scripts/diag/audit_project_coverage.py`；`docs/PROJECT_AB50_B2_DIAGNOSTIC_20260825.md`。 |
@@ -47,7 +49,7 @@
 
 1. A0.0/A0.1 已完成，A1.P 未通过并已停止；不创建 A1/A2 主链配置。
 2. B1.A 已完成；B1 Smoke10 未通过，已回滚实验规则，不运行 AB50。
-3. B2 与 B3.1 均已停止；下一候选工作为 A3.A，对 A0 的 selector/generation 失败样本做逐题离线证据覆盖审计。
+3. B2 与 B3.1 均已停止；A3.A 已完成，下一任务为 A3.P，仅复放 `qst_0176`、`qst_0272` 的 selector 输入输出。
 4. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
 5. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
 
@@ -66,3 +68,4 @@
 | 2026-08-25 | B3.A | Completeness：两题均为检索/引用缺口，但失败层不同；不混合调参。 | 2 题逐阶段覆盖审计；见 B3 报告。 | 本次提交 | 待确认 |
 | 2026-08-25 | B3.P | 两条隔离诊断完成：仅 `qst_0447` 放行多分面多文档计划候选。 | 只读检查 PageIndex plan、follow-up、selected docs 及 rerank 位次；见 B3.P 报告。 | 本次提交 | 待确认 |
 | 2026-08-25 | B3.1 | Smoke10 未通过：目标和 8 个控制题均与基线无变化；已回滚，不运行 AB50。 | 10 answer、10 trace、10 官方 no-correction 评分；见 B3.1 报告。 | 本次提交 | 待确认 |
+| 2026-08-25 | A3.A | 六题审计完成：2 个 selector 真实误拒；4 个 generation gap 中 1 个为 chunk 覆盖/污染，3 个为评分完整性不一致，生成优化目标为 0。 | 冻结 S1 精确 chunk 审计；见 A3.A 报告。 | 本次提交 | 待确认 |
