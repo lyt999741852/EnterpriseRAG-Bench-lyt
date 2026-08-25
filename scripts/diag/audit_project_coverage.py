@@ -1,4 +1,4 @@
-"""Audit Project-question document coverage after a completed evaluation.
+"""Audit one question type's document coverage after a completed evaluation.
 
 This is an offline diagnostic.  It reads expected document IDs only after a
 run has completed and must never be imported by the online RAG pipeline.
@@ -60,6 +60,11 @@ def main() -> int:
     parser.add_argument("--results", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     parser.add_argument("--question-id", action="append", dest="question_ids")
+    parser.add_argument(
+        "--question-type",
+        default="project_related",
+        help="Offline question type to audit (default: project_related).",
+    )
     args = parser.parse_args()
 
     questions = load_jsonl(args.questions)
@@ -74,8 +79,9 @@ def main() -> int:
         if question_id not in common_ids or question_id not in questions:
             raise ValueError(f"incomplete artifacts for {question_id}")
         question = questions[question_id]
-        if str(question.get("question_type", "")).lower() != "project_related":
-            raise ValueError(f"{question_id} is not a project_related question")
+        question_type = str(question.get("question_type", "")).lower()
+        if question_type != args.question_type.lower():
+            raise ValueError(f"{question_id} is not a {args.question_type} question")
         expected = {str(item) for item in question.get("expected_doc_ids", []) if item}
         if not expected:
             raise ValueError(f"{question_id} has no expected_doc_ids")
@@ -122,8 +128,9 @@ def main() -> int:
     counts = Counter(row["bucket"] for row in rows)
     report = {
         "schema_version": 1,
-        "scope": "offline Project-only coverage audit",
-        "project_question_count": len(rows),
+        "scope": f"offline {args.question_type}-only coverage audit",
+        "question_type": args.question_type.lower(),
+        "question_type_count": len(rows),
         "bucket_counts": dict(sorted(counts.items())),
         "rows": rows,
     }
