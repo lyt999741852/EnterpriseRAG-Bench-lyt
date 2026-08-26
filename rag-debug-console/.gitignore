@@ -1,0 +1,13 @@
+# Local runtime data for the isolated console
+runtime/
+.env
+.env.*
+!.env.example
+
+# Python and Node build artifacts
+__pycache__/
+*.py[cod]
+.pytest_cache/
+frontend/node_modules/
+frontend/dist/
+frontend/.vite/
