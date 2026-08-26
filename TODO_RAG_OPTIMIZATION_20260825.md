@@ -46,15 +46,16 @@
 | B3.A | 已完成 | 对 AB50 的 Completeness 子集做逐目标文档的离线阶段覆盖审计。 | 2 题均为检索/引用缺口，但一题是 selector/citation 缩减，另一题同时为 raw/rerank/final 缺口。 | `scripts/diag/audit_project_coverage.py`；`docs/COMPLETENESS_AB50_B3_DIAGNOSTIC_20260825.md`。 |
 | B3.P | 已完成 | 将 Completeness 的 selector/citation 与 raw/rerank 路径分开只读验证。 | `qst_0432` 不具备独立检索变量；`qst_0447` 的多分面计划被单文档模式抵消，放行 question-only 多文档计划候选。 | `docs/COMPLETENESS_B3P_ISOLATED_PROBES_20260825.md`。 |
 | B3.1 | 未通过，已停止 | 对题干规划出多个独立分面及多环境硬约束的问题，启用多文档证据计划；不强制 benchmark 题型。 | Smoke10 已完成，但 `qst_0447` 仍为 0% recall/0% completeness/extra 1；所有控制题无变化，不运行 AB50。 | 独立配置、精确应用/回滚脚本、失败报告。 |
-| A4/B4 | 未通过，已停止 | PageIndex ON AB50 conflict-contract 回归。 | 50/50 完成；recall +2.13pp、completeness +0.66pp，但 combined 59.01 低于基线 59.34，且 qst_0298 出现正确性回归；invalid extra 仅作诊断。 | `docs/SEMANTIC_A4_PAGEINDEX_AB50_CONFLICT_REGRESSION_20260826.md`。 |
-| F500 | 门禁停止 | 新的完整 500 题候选评测。 | 等待 A4/B4 通过；本轮不运行，避免扩散未通过变量。 | 新快照、报告、复现说明。 |
+| A3.5 | 已完成（局部残留） | 在 generation/final audit 提示词增加直接答案保护，避免不同范围证据把已命中的值改写成未知。 | 六题隔离回归 6/6 完成，qst_0298 直答恢复；完整 AB50 中 qst_0298 仍有过度限定，记录为后续定向优化项。 | `scripts/remote/apply_semantic_a35_generation_conflict_guard.py`；`scripts/diag/run_semantic_a35_generation_smoke.py`；对应配置与报告。 |
+| A4/B4 | 已通过 | PageIndex ON AB50 conflict-contract + generation guard 回归。 | 50/50 完成；combined 59.41（基线 59.34，+0.07）、correctness 64.00% 不下降、completeness 66.50%、recall 63.89%；invalid extra 仅作诊断。 | `docs/SEMANTIC_A3_5_GENERATION_CONFLICT_GUARD_AB50_20260826.md`；`configs/eval_pageindex_ab50_semantic_conflict_guard_r3_20260826.yaml`。 |
+| F500 | 待开始（门禁已解除） | 新的完整 500 题候选评测。 | A4/B4 已达到 combined 与 correctness 门槛；需单独创建 F500 快照并运行，不能与 AB50 结果混比。 | 新快照、报告、复现说明。 |
 | FC | 待开始 | 提交前官方 correction 复评。 | 与 no-correction 隔离保存，不混比；给出最终差异说明。 | `official_correction/` 产物索引与报告。 |
 
 ## 当前执行顺序
 
 1. A0.0/A0.1 已完成，A1.P 未通过并已停止；不创建 A1/A2 主链配置。
 2. B1.A 已完成；B1 Smoke10 未通过，已回滚实验规则，不运行 AB50。
-3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1/A3.2/A3.3/A3.4 及官方 no-correction 评分已完成，下一任务为 A4/B4 PageIndex ON 回归。
+3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1/A3.2/A3.3/A3.4/A3.5 及 A4/B4 官方 no-correction 评分已完成，下一任务为独立 F500 候选评测；qst_0298 的长上下文过度限定作为并行定向优化项记录，不阻断本轮 AB50 合流。
 4. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
 5. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
 
@@ -79,4 +80,4 @@
 | 2026-08-26 | A3.2 | 端到端 smoke 通过：q176/q272/q182 恢复，q177 保持，q220/q260 保持拒答；已回滚 runtime 补丁。 | 精确对齐版本六题 pipeline，recall 66.7%、extra 0；见 A3.2 报告。 | 本次提交 | 待确认 |
 | 2026-08-26 | A3.3 | q182 候选集合无变化，根因是应用脚本少一个换行；修正后 selector 与 runtime 字节对齐。 | 5 次 selector 复放 + q182 单题端到端；见 A3.3 报告。 | 本次提交 | 待确认 |
 | 2026-08-26 | A3.4 | 完整 Semantic30 conflict contract 重跑并完成官方 no-correction 评分：combined 52.22，较 S1 45.56 提升 6.66；q176/q272/q0208 恢复。 | 30 条 answers/trace/simple_metrics/results；见 A3.4 报告。 | 待提交 | 待确认 |
-| 2026-08-26 | A4/B4 | PageIndex ON AB50 回归未通过：combined 59.01（基线 59.34），qst_0272 恢复但 qst_0298 正确性回归；F500 门禁停止。 | 50 条 answers/trace/simple_metrics/results，官方 no-correction；见 A4 回归报告。 | 待提交 | 待确认 |
+| 2026-08-26 | A3.5/A4/B4 | generation guard 六题隔离回归完成；AB50 通过整体门槛：combined 59.41（基线 59.34），correctness 64.00% 不下降；qst_0298 完整 AB50 仍有单题过度限定残留。 | 6 题生成隔离 + 50 条 answers/trace/simple_metrics/results，官方 no-correction；见 A3.5 报告。 | 待提交 | 待确认 |
