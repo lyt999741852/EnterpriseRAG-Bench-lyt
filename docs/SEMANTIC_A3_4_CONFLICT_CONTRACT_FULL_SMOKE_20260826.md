@@ -21,8 +21,9 @@
 - `qst_0176`、`qst_0272` 两个已确认 selector drop 均恢复。
 - `qst_0208` 本轮恢复目标文档及正确答案，未复现此前单次全量运行的退化。
 - raw miss 与 RRF/rerank drop 仍然存在；本实验不改变检索阶段。
-- 配置未启用官方评测，因此尚不能宣称 500 题官方分数提升。
+- 随后使用同一份 answers 运行官方 no-correction 评分：correctness **56.67%**、completeness **60.21%**、combined **52.22**、recall **60.0%**。
+- 该 52.22 是 Semantic30 诊断子集分数，不等同于 500 题基线 55.18，不能直接宣称 500 题分数提升。
 
 ## 结论
 
-conflict contract 在固定 Semantic30 上通过了诊断级整体 smoke：目标 selector 题净增加 2 题召回，且未出现明显答案污染。根据打榜口径，无效额外文档不再作为独立阻断条件；下一步应进行官方 no-correction 评分，再决定是否接回 PageIndex ON 的 AB50 回归。若官方分数无增益，则停止 A3 合流，转向 raw miss/RRF 检索优化。
+conflict contract 在固定 Semantic30 上通过了诊断级整体 smoke：官方 combined 由 S1 的 **45.56** 提升至 **52.22（+6.66）**，全部净提升来自 `qst_0176`、`qst_0272` 两个 selector drop 的证据恢复。根据打榜口径，无效额外文档不作为独立阻断条件；下一步接回 PageIndex ON 做 AB50 回归，再决定是否进入 500 题评测。该改动只反馈 evidence selector/admission 层，不解决 raw miss、RRF/rerank 或泛化 generation 问题。
