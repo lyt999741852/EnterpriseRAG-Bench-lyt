@@ -51,3 +51,19 @@
 - 下一候选变量应是“候选池扩大 + rerank 后按分面/文档保留”的组合，但必须先做 6～8 题单变量 smoke，确认不牺牲已有正确题。
 - raw miss 组转向词法实体/版本/数字锚点和 embedding 覆盖诊断；bridge query 0/5 不放行主链。
 - F500 仍保持停止，直到检索变量在小样本达到 correctness 提升且无明显回退。
+
+## 6. 候选池扩大 + rerank 后分面/文档保留组合 smoke
+
+变量：在 `candidate_k=180` 的基础上启用通用 `semantic_evidence_quota`（semantic、project_related、completeness 三类题，最多 3 个分面查询，每个分面保留 3 个 reranked chunks）；不锁定题目或目标文档。沿用已验证的 conflict-contract 作为固定实验背景，运行 12 题组合子集。
+
+| 指标 | candidate_k=180 子集 | 组合 smoke | 变化 |
+|---|---:|---:|---:|
+| correctness | 41.67% | **41.67%** | 0 |
+| completeness | 45.62% | **45.62%** | 0 |
+| combined | 40.28 | **40.28** | 0 |
+| document recall | 42.59% | **42.59%** | 0 |
+| invalid extra | 0.25 | **0.25** | 0 |
+
+逐题 route trace 显示两组在 before/after rerank 和 final document 集合上完全相同（仅 `qst_0356` final 列表少 1 个非目标 chunk，未改变评分）。`qst_0093`、`qst_0211`、`qst_0236`、`qst_0272`、`qst_0291` 保持正确；`qst_0050` 仍为部分完整度，`qst_0231`、`qst_0356`、`qst_0447` 仍未召回目标文档，`qst_0362` 仅 11.11% 文档召回。组合变量没有把新分面文档带入最终证据，因此不构成独立收益，也不进入 AB50。
+
+结论：当前瓶颈不是“候选池扩大后缺少分面配额”，而是 raw/rerank 候选本身或 PageIndex/selector 的最终保留；后续应转向 raw-miss 的索引/embedding 覆盖、词法实体/数字锚点，以及对多文档最终保留逻辑的离线定位。F500 继续停止。

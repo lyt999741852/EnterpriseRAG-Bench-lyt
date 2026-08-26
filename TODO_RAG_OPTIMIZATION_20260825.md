@@ -52,6 +52,7 @@
 | R2 | 已完成（不合流） | reranker candidate pool 120→180。 | 12 题 correctness 25.00%→41.67%、recall 28.01%→42.59%；qst_0093 恢复但 qst_0356 回退，不运行 AB50。 | `configs/eval_pageindex_retrieval_pool_smoke12_20260826.yaml`；对应 cfggen。 |
 | R3 | 已完成（不合流） | 通用 semantic_evidence_quota 多分面检索。 | 8 题 correctness 37.50%→50.00%，但关键 qst_0197/qst_0447/qst_0356/qst_0362 未改善，提升主要来自既有 selector 恢复，不运行 AB50。 | `configs/eval_pageindex_facet_quota_smoke8_20260826.yaml`；对应 cfggen。 |
 | R4 | 已完成（不放行） | raw-miss 单条 bridge query 只读探针。 | 5/5 未命中目标文档；不接入 bridge query，转向索引/embedding 和词法锚点诊断。 | `outputs/pageindex_ab50_semantic_conflict_guard_r3_20260826/raw_miss_bridge_probe.json`（远端/本地实验产物）；审计报告。 |
+| R5 | 已完成（不放行） | 组合验证：候选池扩大（`candidate_k=180`）后按分面/文档保留。 | 12 题与 candidate_k-only 完全同分：correctness 41.67%、completeness 45.62%、combined 40.28、recall 42.59%；逐题 final 文档集合无实质变化，不运行 AB50。 | `configs/eval_pageindex_combined_retrieval_smoke12_20260826.yaml`；对应 cfggen；检索审计报告。 |
 | F500 | 待开始（门禁已解除） | 新的完整 500 题候选评测。 | A4/B4 已达到 combined 与 correctness 门槛；需单独创建 F500 快照并运行，不能与 AB50 结果混比。 | 新快照、报告、复现说明。 |
 | FC | 待开始 | 提交前官方 correction 复评。 | 与 no-correction 隔离保存，不混比；给出最终差异说明。 | `official_correction/` 产物索引与报告。 |
 
@@ -59,7 +60,7 @@
 
 1. A0.0/A0.1 已完成，A1.P 未通过并已停止；不创建 A1/A2 主链配置。
 2. B1.A 已完成；B1 Smoke10 未通过，已回滚实验规则，不运行 AB50。
-3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1/A3.2/A3.3/A3.4/A3.5、A4/B4 及 R1–R4 检索诊断已完成。候选池扩大和分面配额均未通过合流门槛，下一步是组合式“候选池 + 分面保留”小 smoke，F500 继续停止。
+3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1/A3.2/A3.3/A3.4/A3.5、A4/B4 及 R1–R5 检索诊断已完成。候选池扩大、分面配额及其组合均未通过合流门槛；下一步转向 raw-miss 的索引/embedding 覆盖与词法锚点诊断，F500 继续停止。
 4. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
 5. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
 
@@ -86,3 +87,4 @@
 | 2026-08-26 | A3.4 | 完整 Semantic30 conflict contract 重跑并完成官方 no-correction 评分：combined 52.22，较 S1 45.56 提升 6.66；q176/q272/q0208 恢复。 | 30 条 answers/trace/simple_metrics/results；见 A3.4 报告。 | 待提交 | 待确认 |
 | 2026-08-26 | A3.5/A4/B4 | generation guard 六题隔离回归完成；AB50 通过整体门槛：combined 59.41（基线 59.34），correctness 64.00% 不下降；qst_0298 完整 AB50 仍有单题过度限定残留。 | 6 题生成隔离 + 50 条 answers/trace/simple_metrics/results，官方 no-correction；见 A3.5 报告。 | 待提交 | 待确认 |
 | 2026-08-26 | R1–R4 | 完成 AB50 检索层分桶、candidate_k=180 smoke、facet quota smoke 和 raw-miss bridge probe；未放行任何变量进入 AB50。 | R1–R4 诊断产物与官方子集评分；见检索审计报告。 | 待提交 | 待确认 |
+| 2026-08-26 | R5 | 候选池扩大 + rerank 后分面/文档保留组合 smoke 无增益；与 candidate_k-only 结果一致，未放行 AB50。 | 12 条 answers/trace/simple_metrics/results；官方 no-correction：combined 40.28、correctness 41.67%、recall 42.59%；见检索审计报告。 | 待提交 | 待确认 |
