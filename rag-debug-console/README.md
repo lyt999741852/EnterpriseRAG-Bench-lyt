@@ -9,6 +9,7 @@
 
 详细边界、接口和开发顺序见 [开发设计](docs/DEVELOPMENT_DESIGN.md)，实现状态与提交追踪见 [TODO](TODO.md)。
 前端操作、题库导入与批量测试见 [使用说明](docs/USER_GUIDE.md)。
+真实服务发布、预检和验收见 [M5 联调手册](docs/M5_RELEASE_AND_PRECHECK.md)。
 
 ## 真实服务接入
 
