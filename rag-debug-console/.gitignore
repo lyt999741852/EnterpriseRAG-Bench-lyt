@@ -1,5 +1,6 @@
 # Local runtime data for the isolated console
 runtime/
+data/questions.public.json
 .env
 .env.*
 !.env.example
