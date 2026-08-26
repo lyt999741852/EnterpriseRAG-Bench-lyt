@@ -64,6 +64,15 @@ rag-debug-console/
 
 在该接口未准备好时，控制台可以先完成前端、题库浏览、运行记录及 API mock；不得通过直接调用 `python -m src.pipeline` 的方式接入生产页面。
 
+已发布调试服务的最小契约如下。服务必须独立部署、只读且仅接受 question-only 请求：
+
+| 方法 | 路径 | 响应要求 |
+|---|---|---|
+| `GET` | `/debug/versions` | `{ "versions": [{ "id", "label", "fingerprint", "published_at", "is_latest" }] }` |
+| `POST` | `/debug/answer` | 请求只含 `question` 与 `rag_version`；响应含 `answer`、`trace`、`metrics`、`timing_ms` |
+
+通过环境变量 `RAG_DEBUG_API_URL` 启用服务。连接失败或响应不符合契约时，控制台明确报错，不会悄悄切换版本或触碰本仓库 RAG 代码。
+
 ### 3.2.1 两种运行模式
 
 | 模式 | 用途 | RAG 版本选择 | 默认场景 | 结果可复现性 |

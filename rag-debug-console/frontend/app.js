@@ -55,12 +55,24 @@ function traceHtml(trace) {
   return Object.entries(trace).map(([name, item]) => `<div class="trace-item"><b>${name}</b>${Object.entries(item).filter(([key]) => key !== "views" && key !== "document_ids").map(([key, value]) => `${key}: ${value}`).join(" · ")}</div>`).join("");
 }
 
+function metricsHtml(metrics) {
+  const judge = metrics.judge;
+  const entries = [
+    ["Recall", metrics.document_recall_pct],
+    ["Invalid docs", metrics.invalid_extra_docs],
+    ["Correctness", judge?.correctness_pct],
+    ["Completeness", judge?.completeness_pct],
+    ["Overall", judge?.overall_pct]
+  ].filter(([, value]) => value !== undefined && value !== null);
+  return entries.length ? `<div class="metrics">${entries.map(([label, value]) => `<span><b>${label}</b> ${value}${label === "Invalid docs" ? "" : "%"}</span>`).join("")}</div>` : "<p class=\"metric-note\">评测服务尚未返回指标。</p>";
+}
+
 function renderRun(run) {
   const conversation = $("#conversation");
   conversation.querySelector(".empty")?.remove();
   conversation.insertAdjacentHTML("beforeend", `
     <article class="message"><div class="avatar">你</div><div><p class="meta">${run.question.id || "手动输入"} · ${run.mode}</p><div class="content"></div></div></article>
-    <article class="message assistant"><div class="avatar">RAG</div><div><p class="meta">${run.status} · ${run.timing_ms.total}ms · ${run.rag_version.id}</p><div class="content"><span></span><div class="citations">${run.answer.document_ids.map(id => `<span class="citation">${id}</span>`).join("")}</div><details class="trace"><summary>查看执行轨迹（mock）</summary><div class="trace-grid">${traceHtml(run.trace)}</div></details></div></div></article>`);
+    <article class="message assistant"><div class="avatar">RAG</div><div><p class="meta">${run.status} · ${run.timing_ms.total}ms · ${run.rag_version.id}</p><div class="content"><span></span><div class="citations">${run.answer.document_ids.map(id => `<span class="citation">${id}</span>`).join("")}</div>${metricsHtml(run.metrics)}<details class="trace"><summary>查看执行轨迹</summary><div class="trace-grid">${traceHtml(run.trace)}</div></details></div></div></article>`);
   const messages = conversation.querySelectorAll(".message");
   messages[messages.length - 2].querySelector(".content").textContent = run.question.text;
   messages[messages.length - 1].querySelector(".content > span").textContent = run.answer.text;

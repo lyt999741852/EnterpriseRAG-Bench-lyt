@@ -17,9 +17,9 @@
 | M0 | 独立基座与追溯 | DONE | 独立根目录、忽略规则、README、任务追踪和边界检查 | `52f29a7` / `git diff --check -- rag-debug-console` |
 | M1 | RAG 调试 API 契约与版本模式 | DONE | question-only 契约、`pinned`/`live`、版本指纹、mock 服务 | `b7aa7f2` / 6 项 `backend/tests` 通过 |
 | M2 | 500 题题库与单题联调 UI | DONE | 分类侧栏、快捷填入、对话、轨迹和异常状态 | `b7aa7f2` / 8 题样例 + 可验证的安全导入器 |
-| M3 | 批量调度与运行历史 | DONE | daily-50/full-500、队列、资源锁、取消、独立产物目录 | 待本次模块提交 / 8 项测试通过 |
-| M4 | 指标与结果钻取 | TODO | 即时指标、官方 Judge 指标、分题型聚合与失败定位 | — |
-| M5 | 隔离验收与发布 | TODO | 不触碰现有 RAG 目录、端到端验证、文档与 PR | — |
+| M3 | 批量调度与运行历史 | DONE | daily-50/full-500、队列、资源锁、取消、独立产物目录 | `f347a32` / 8 项测试通过 |
+| M4 | 指标与结果钻取 | DONE | 即时指标、官方 Judge 指标、分题型聚合与失败定位 | 待本次模块提交 / 9 项测试通过 |
+| M5 | 隔离验收与发布 | BLOCKED | 不触碰现有 RAG 目录、端到端验证、文档与 PR | 等待独立、已发布的 RAG 调试服务 |
 
 ## 每模块记录模板
 
@@ -83,4 +83,28 @@
 提交 SHA：待创建
 远端分支 / PR：https://github.com/lyt999741852/EnterpriseRAG-Bench-lyt/pull/1
 备注或阻塞原因：daily-50 已确认采用多轮均衡题集；真实 RAG/评测调用仍属于 M4/M5。
+```
+
+```text
+日期：2026-08-26
+模块：M4
+状态：DONE
+变更范围：独立发布 RAG 服务 HTTP 适配器、版本契约校验、指标展示与服务模式提示。
+验证命令与结果：`python -m unittest discover -s backend/tests -v`（9 项通过）；`node --check frontend/app.js`（通过）。
+运行 ID（如适用）：无
+提交 SHA：待创建
+远端分支 / PR：https://github.com/lyt999741852/EnterpriseRAG-Bench-lyt/pull/1
+备注或阻塞原因：没有设置 `RAG_DEBUG_API_URL` 时使用 mock；真实 RAG 与 Judge 指标等待 M5 联调。
+```
+
+```text
+日期：2026-08-26
+模块：M5
+状态：BLOCKED
+变更范围：尚未进行真实 RAG 或 Judge 调用。
+验证命令与结果：不适用。
+运行 ID（如适用）：无
+提交 SHA：待创建
+远端分支 / PR：https://github.com/lyt999741852/EnterpriseRAG-Bench-lyt/pull/1
+备注或阻塞原因：需要一个按 `/debug/versions`、`/debug/answer` 契约独立发布的 RAG 服务，以及与当前优化任务协调的资源锁。
 ```

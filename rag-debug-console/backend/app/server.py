@@ -12,7 +12,7 @@ from urllib.parse import parse_qs, urlparse
 
 from .catalog import QuestionCatalog
 from .batch_manager import BatchManager
-from .rag_gateway import MockRagGateway
+from .rag_gateway import create_gateway
 from .run_store import RunStore
 
 
@@ -20,7 +20,7 @@ APP_ROOT = Path(__file__).resolve().parents[2]
 FRONTEND_ROOT = APP_ROOT / "frontend"
 CATALOG_PATH = APP_ROOT / "data" / "questions.public.json"
 CATALOG = QuestionCatalog(CATALOG_PATH if CATALOG_PATH.exists() else APP_ROOT / "data" / "catalog.sample.json")
-GATEWAY = MockRagGateway()
+GATEWAY, GATEWAY_MODE = create_gateway()
 STORE = RunStore(APP_ROOT / "runtime" / "console.sqlite3")
 BATCHES = BatchManager(APP_ROOT / "runtime", APP_ROOT / "data" / "test-suites")
 
@@ -58,7 +58,7 @@ class ConsoleHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path == "/api/health":
             self._json(HTTPStatus.OK, {
-                "status": "ok", "gateway": "mock", "resource_locks": {"rag-inference": "unlocked", "rag-evaluation": BATCHES.lock_status()},
+                "status": "ok", "gateway": GATEWAY_MODE, "resource_locks": {"rag-inference": "unlocked", "rag-evaluation": BATCHES.lock_status()},
             })
             return
         if parsed.path == "/api/rag-versions":
