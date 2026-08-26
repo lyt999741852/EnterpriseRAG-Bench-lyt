@@ -46,8 +46,8 @@
 | B3.A | 已完成 | 对 AB50 的 Completeness 子集做逐目标文档的离线阶段覆盖审计。 | 2 题均为检索/引用缺口，但一题是 selector/citation 缩减，另一题同时为 raw/rerank/final 缺口。 | `scripts/diag/audit_project_coverage.py`；`docs/COMPLETENESS_AB50_B3_DIAGNOSTIC_20260825.md`。 |
 | B3.P | 已完成 | 将 Completeness 的 selector/citation 与 raw/rerank 路径分开只读验证。 | `qst_0432` 不具备独立检索变量；`qst_0447` 的多分面计划被单文档模式抵消，放行 question-only 多文档计划候选。 | `docs/COMPLETENESS_B3P_ISOLATED_PROBES_20260825.md`。 |
 | B3.1 | 未通过，已停止 | 对题干规划出多个独立分面及多环境硬约束的问题，启用多文档证据计划；不强制 benchmark 题型。 | Smoke10 已完成，但 `qst_0447` 仍为 0% recall/0% completeness/extra 1；所有控制题无变化，不运行 AB50。 | 独立配置、精确应用/回滚脚本、失败报告。 |
-| A4/B4 | 待开始 | 仅合并 A、B 中各自通过的开关，接回 PageIndex ON 主链。 | AB50 官方分数、正确性/完整性或 Semantic 指标有可重复净增益；额外文档仅在造成答案污染时处理。 | 合流 YAML、回归报告、测试。 |
-| F500 | 待开始 | 新的完整 500 题候选评测。 | 仅在 A4/B4 全通过后启动；保存 answers、配置、日志、官方 no-correction 明细与逐题 trace；不覆盖 55.18 快照。 | 新快照、报告、复现说明。 |
+| A4/B4 | 未通过，已停止 | PageIndex ON AB50 conflict-contract 回归。 | 50/50 完成；recall +2.13pp、completeness +0.66pp，但 combined 59.01 低于基线 59.34，且 qst_0298 出现正确性回归；invalid extra 仅作诊断。 | `docs/SEMANTIC_A4_PAGEINDEX_AB50_CONFLICT_REGRESSION_20260826.md`。 |
+| F500 | 门禁停止 | 新的完整 500 题候选评测。 | 等待 A4/B4 通过；本轮不运行，避免扩散未通过变量。 | 新快照、报告、复现说明。 |
 | FC | 待开始 | 提交前官方 correction 复评。 | 与 no-correction 隔离保存，不混比；给出最终差异说明。 | `official_correction/` 产物索引与报告。 |
 
 ## 当前执行顺序
@@ -79,3 +79,4 @@
 | 2026-08-26 | A3.2 | 端到端 smoke 通过：q176/q272/q182 恢复，q177 保持，q220/q260 保持拒答；已回滚 runtime 补丁。 | 精确对齐版本六题 pipeline，recall 66.7%、extra 0；见 A3.2 报告。 | 本次提交 | 待确认 |
 | 2026-08-26 | A3.3 | q182 候选集合无变化，根因是应用脚本少一个换行；修正后 selector 与 runtime 字节对齐。 | 5 次 selector 复放 + q182 单题端到端；见 A3.3 报告。 | 本次提交 | 待确认 |
 | 2026-08-26 | A3.4 | 完整 Semantic30 conflict contract 重跑并完成官方 no-correction 评分：combined 52.22，较 S1 45.56 提升 6.66；q176/q272/q0208 恢复。 | 30 条 answers/trace/simple_metrics/results；见 A3.4 报告。 | 待提交 | 待确认 |
+| 2026-08-26 | A4/B4 | PageIndex ON AB50 回归未通过：combined 59.01（基线 59.34），qst_0272 恢复但 qst_0298 正确性回归；F500 门禁停止。 | 50 条 answers/trace/simple_metrics/results，官方 no-correction；见 A4 回归报告。 | 待提交 | 待确认 |
