@@ -1,0 +1,11 @@
+{
+  "id": "rag-bge500-p0-20260817",
+  "label": "BGE500 P0 frozen baseline",
+  "fingerprint": "sha256:25e4f322178ff41fab82f87083e6c143f5e1dc9f230836a79d719674430d941c",
+  "published_at": "2026-08-18T00:00:00Z",
+  "is_latest": true,
+  "archive": "rag_500core_v1.7z",
+  "archive_sha256": "dced89c99e0fd9c9c42dc92fe257de25d0d2a53bc5d61d2e68963cf97e7e55f0",
+  "frozen_config": "configs/snapshots/eval_pageindex_full500_bge_rerank_question_only_llm_route_multiview_p0_20260817.yaml",
+  "isolation": "runtime/frozen-rag-bge500-p0; read-only shared index and corpus"
+}

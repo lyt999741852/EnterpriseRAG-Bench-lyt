@@ -43,3 +43,26 @@ python -m backend.app.server --host 127.0.0.1 --port 8090
 ## 当前阻塞
 
 尚未提供独立发布服务的 URL、已发布版本 ID 和运行环境。没有这些输入时，本控制台保持 mock，不能诚实地宣称完成真实 M5 联调。
+
+## 本机冻结副本（已准备）
+
+本项目已从 `rag_500core_v1.7z` 解压 P0 代码到被 Git 忽略的 `runtime/frozen-rag-bge500-p0/`，归档 SHA-256 为 `dced89c99e0fd9c9c42dc92fe257de25d0d2a53bc5d61d2e68963cf97e7e55f0`。本机 sidecar 的版本 ID 为 `rag-bge500-p0-20260817`，端口为 `127.0.0.1:8091`。
+
+启动前必须将共享资源明确设为只读输入路径：
+
+```powershell
+cd D:\EnterpriseRAG-Bench\rag-debug-console
+$env:P0_CORPUS_DIR = "D:\EnterpriseRAG-Bench\corpus\all_documents"
+$env:P0_INDEX_DIR = "D:\EnterpriseRAG-Bench\.index_cache\full_es_bge_small"
+$env:P0_PAGEINDEX_HOME = "<本机独立 PageIndex 安装目录>"
+python -m local_service.server --host 127.0.0.1 --port 8091
+```
+
+随后在另一个终端启动控制台：
+
+```powershell
+$env:RAG_DEBUG_API_URL = "http://127.0.0.1:8091"
+python -m backend.app.server --host 127.0.0.1 --port 8090
+```
+
+冻结副本只会在 `rag-debug-console/runtime/local-p0-runs/` 产生问题、配置和输出；它不会向当前 RAG 目录写入内容。若本机缺少 PageIndex、ES、模型依赖或服务密钥，sidecar 会失败并保留隔离日志，不能改用当前优化进程作为替代。

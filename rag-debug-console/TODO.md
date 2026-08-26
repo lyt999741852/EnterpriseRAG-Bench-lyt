@@ -39,12 +39,12 @@
 日期：2026-08-26
 模块：M5
 状态：IN PROGRESS
-变更范围：独立发布服务预检脚本、部署隔离检查表与真实联调验收手册。
-验证命令与结果：`python -m unittest discover -s backend/tests -v`（10 项通过）。
+变更范围：独立发布服务预检脚本、部署隔离检查表、冻结 P0 本机 sidecar 与真实联调验收手册。
+验证命令与结果：`python -m unittest discover -s backend/tests -v`（10 项通过）；`python -m compileall -q local_service`（通过）。
 运行 ID（如适用）：无
 提交 SHA：待创建
 远端分支 / PR：https://github.com/lyt999741852/EnterpriseRAG-Bench-lyt/pull/1
-备注或阻塞原因：真实预检仍需要独立发布服务的 URL、已发布版本 ID 和无 gold 冒烟问题。
+备注或阻塞原因：本机 URL 和版本已固定为 `http://127.0.0.1:8091` / `rag-bge500-p0-20260817`；仍需本机 PageIndex、ES、模型服务与密钥可用后执行真实预检。
 ```
 
 ## 当前记录
