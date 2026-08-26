@@ -11,7 +11,7 @@
       <header class="topbar"><strong><span>RAG</span> 联调控制台</strong><div id="health">正在检查服务…</div></header>
       <div class="layout">
         <aside>
-          <nav aria-label="页面导航"><button class="nav active" data-view="chat">单题联调</button><button class="nav" data-view="history">运行历史</button></nav>
+          <nav aria-label="页面导航"><button class="nav active" data-view="chat">单题联调</button><button class="nav" data-view="batch">批量测试</button><button class="nav" data-view="history">运行历史</button></nav>
           <label class="search-label" for="catalog-search">500 题题库</label>
           <input id="catalog-search" type="search" placeholder="搜索题号或问题">
           <div id="catalog" aria-live="polite"></div>
@@ -25,6 +25,7 @@
             <form id="chat-form"><textarea id="question" rows="3" placeholder="输入一个问题…"></textarea><div class="form-actions"><small>Mock 调试网关；尚未连接当前 RAG 流水线。</small><button type="submit">发送并运行</button></div></form>
           </section>
           <section id="history-view" class="view"><div class="heading"><div><h1>运行历史</h1><p>每条记录含运行模式和 RAG 版本指纹。</p></div><button id="refresh-history" class="secondary">刷新</button></div><div id="history" class="history"></div></section>
+          <section id="batch-view" class="view"><div class="heading"><div><h1>批量测试</h1><p>任务进入独立队列；批量运行会锁定 <code>rag-evaluation</code>。</p></div><button id="refresh-batches" class="secondary">刷新</button></div><div id="batches" class="history"></div></section>
         </main>
       </div>
     </div>

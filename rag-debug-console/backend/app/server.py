@@ -11,6 +11,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlparse
 
 from .catalog import QuestionCatalog
+from .batch_manager import BatchManager
 from .rag_gateway import MockRagGateway
 from .run_store import RunStore
 
@@ -21,6 +22,7 @@ CATALOG_PATH = APP_ROOT / "data" / "questions.public.json"
 CATALOG = QuestionCatalog(CATALOG_PATH if CATALOG_PATH.exists() else APP_ROOT / "data" / "catalog.sample.json")
 GATEWAY = MockRagGateway()
 STORE = RunStore(APP_ROOT / "runtime" / "console.sqlite3")
+BATCHES = BatchManager(APP_ROOT / "runtime", APP_ROOT / "data" / "test-suites")
 
 
 class ConsoleHandler(BaseHTTPRequestHandler):
@@ -56,7 +58,7 @@ class ConsoleHandler(BaseHTTPRequestHandler):
         parsed = urlparse(self.path)
         if parsed.path == "/api/health":
             self._json(HTTPStatus.OK, {
-                "status": "ok", "gateway": "mock", "resource_locks": {"rag-inference": "unlocked", "rag-evaluation": "unlocked"},
+                "status": "ok", "gateway": "mock", "resource_locks": {"rag-inference": "unlocked", "rag-evaluation": BATCHES.lock_status()},
             })
             return
         if parsed.path == "/api/rag-versions":
@@ -76,6 +78,16 @@ class ConsoleHandler(BaseHTTPRequestHandler):
         if parsed.path == "/api/chat-runs":
             self._json(HTTPStatus.OK, {"runs": STORE.list()})
             return
+        if parsed.path == "/api/batch-runs":
+            self._json(HTTPStatus.OK, {"runs": BATCHES.list()})
+            return
+        if parsed.path.startswith("/api/batch-runs/"):
+            run = BATCHES.get(parsed.path.rsplit("/", 1)[-1])
+            if run is None:
+                self._error(HTTPStatus.NOT_FOUND, "Batch run not found")
+            else:
+                self._json(HTTPStatus.OK, run)
+            return
         if parsed.path.startswith("/api/chat-runs/"):
             run = STORE.get(parsed.path.rsplit("/", 1)[-1])
             if run is None:
@@ -86,7 +98,27 @@ class ConsoleHandler(BaseHTTPRequestHandler):
         self._serve_static(parsed.path)
 
     def do_POST(self) -> None:  # noqa: N802
-        if urlparse(self.path).path != "/api/chat-runs":
+        path = urlparse(self.path).path
+        if path.startswith("/api/batch-runs/") and path.endswith("/cancel"):
+            run = BATCHES.cancel(path.split("/")[-2])
+            if run is None:
+                self._error(HTTPStatus.NOT_FOUND, "Batch run not found")
+            else:
+                self._json(HTTPStatus.OK, run)
+            return
+        if path == "/api/batch-runs":
+            payload = self._request_json()
+            if payload is None:
+                return
+            try:
+                version = GATEWAY.resolve_version(payload.get("mode", "pinned"), payload.get("rag_version"))
+                run = BATCHES.create(str(payload.get("suite", "")), version.__dict__)
+            except (ValueError, RuntimeError) as error:
+                self._error(HTTPStatus.CONFLICT, str(error))
+            else:
+                self._json(HTTPStatus.CREATED, run)
+            return
+        if path != "/api/chat-runs":
             self._error(HTTPStatus.NOT_FOUND, "Endpoint not found")
             return
         payload = self._request_json()

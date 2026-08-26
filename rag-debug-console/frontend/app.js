@@ -90,10 +90,28 @@ async function loadHistory() {
   }));
 }
 
+async function startBatch(suite) {
+  try {
+    const run = await api("/api/batch-runs", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ suite, mode: "pinned", rag_version: $("#version").value }) });
+    notice(`${suite} 已创建：${run.run_id}`);
+    showView("batch");
+  } catch (error) { notice(error.message); }
+}
+
+async function loadBatches() {
+  const { runs } = await api("/api/batch-runs");
+  $("#batches").innerHTML = runs.length ? runs.map(run => {
+    const percent = run.total ? Math.round(run.completed / run.total * 100) : 0;
+    return `<article class="history-item"><h2>${run.suite} · ${run.status}</h2><p>${run.completed} / ${run.total} · ${percent}% · ${run.rag_version.id}</p><div class="batch-progress"><span style="width:${percent}%"></span></div>${["queued", "running"].includes(run.status) ? `<button class="secondary cancel-batch" data-run="${run.run_id}">取消任务</button>` : ""}</article>`;
+  }).join("") : "<div class=\"empty\">还没有批量任务。</div>";
+  $("#batches").querySelectorAll(".cancel-batch").forEach(button => button.addEventListener("click", async () => { await api(`/api/batch-runs/${button.dataset.run}/cancel`, { method: "POST" }); loadBatches(); }));
+}
+
 function showView(view) {
   document.querySelectorAll(".nav").forEach(button => button.classList.toggle("active", button.dataset.view === view));
   document.querySelectorAll(".view").forEach(section => section.classList.toggle("active", section.id === `${view}-view`));
   if (view === "history") loadHistory().catch(error => notice(error.message));
+  if (view === "batch") loadBatches().catch(error => notice(error.message));
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
@@ -104,6 +122,8 @@ document.addEventListener("DOMContentLoaded", async () => {
   document.querySelectorAll(".nav").forEach(button => button.addEventListener("click", () => showView(button.dataset.view)));
   $("#clear-chat").addEventListener("click", () => { $("#conversation").innerHTML = '<div class="empty">会话已清空。</div>'; });
   $("#refresh-history").addEventListener("click", () => loadHistory().catch(error => notice(error.message)));
+  $("#refresh-batches").addEventListener("click", () => loadBatches().catch(error => notice(error.message)));
   $("#notice-close").addEventListener("click", () => $("#notice").close());
-  ["#daily-test", "#full-test"].forEach(selector => $(selector).addEventListener("click", () => notice("批量测试属于 M3：将使用独立队列与资源锁后开放。")));
+  $("#daily-test").addEventListener("click", () => startBatch("daily-50.v1"));
+  $("#full-test").addEventListener("click", () => startBatch("full-500"));
 });

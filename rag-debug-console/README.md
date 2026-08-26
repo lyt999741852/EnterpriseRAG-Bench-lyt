@@ -8,3 +8,4 @@
 - `live`：调用用户选择的最新已发布 RAG 服务，供单题联调；每次运行也保存版本指纹。
 
 详细边界、接口和开发顺序见 [开发设计](docs/DEVELOPMENT_DESIGN.md)，实现状态与提交追踪见 [TODO](TODO.md)。
+前端操作、题库导入与批量测试见 [使用说明](docs/USER_GUIDE.md)。

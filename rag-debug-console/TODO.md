@@ -17,7 +17,7 @@
 | M0 | 独立基座与追溯 | DONE | 独立根目录、忽略规则、README、任务追踪和边界检查 | `52f29a7` / `git diff --check -- rag-debug-console` |
 | M1 | RAG 调试 API 契约与版本模式 | DONE | question-only 契约、`pinned`/`live`、版本指纹、mock 服务 | `b7aa7f2` / 6 项 `backend/tests` 通过 |
 | M2 | 500 题题库与单题联调 UI | DONE | 分类侧栏、快捷填入、对话、轨迹和异常状态 | `b7aa7f2` / 8 题样例 + 可验证的安全导入器 |
-| M3 | 批量调度与运行历史 | BLOCKED | daily-50/full-500、队列、资源锁、取消、独立产物目录 | 等待确认固定 daily-50 清单来源 |
+| M3 | 批量调度与运行历史 | DONE | daily-50/full-500、队列、资源锁、取消、独立产物目录 | 待本次模块提交 / 8 项测试通过 |
 | M4 | 指标与结果钻取 | TODO | 即时指标、官方 Judge 指标、分题型聚合与失败定位 | — |
 | M5 | 隔离验收与发布 | TODO | 不触碰现有 RAG 目录、端到端验证、文档与 PR | — |
 
@@ -76,11 +76,11 @@
 ```text
 日期：2026-08-26
 模块：M3
-状态：BLOCKED
-变更范围：未开始批量执行器，避免自行猜测“日常 50 题”的题号组合。
-验证命令与结果：不适用。
+状态：DONE
+变更范围：daily-50.v1 清单、独立 mock 队列、资源锁、取消、运行文件与批量前端页面。
+验证命令与结果：`python -m unittest discover -s backend/tests -v`（8 项通过）。
 运行 ID（如适用）：无
 提交 SHA：待创建
 远端分支 / PR：https://github.com/lyt999741852/EnterpriseRAG-Bench-lyt/pull/1
-备注或阻塞原因：需要指定采用哪份现有 50 题配置，或确认“按公开题库顺序前 50 题”作为 `daily-50.v1`。
+备注或阻塞原因：daily-50 已确认采用多轮均衡题集；真实 RAG/评测调用仍属于 M4/M5。
 ```
