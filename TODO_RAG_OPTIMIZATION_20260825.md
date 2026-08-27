@@ -55,6 +55,7 @@
 | R5 | 已完成（不放行） | 组合验证：候选池扩大（`candidate_k=180`）后按分面/文档保留。 | 12 题与 candidate_k-only 完全同分：correctness 41.67%、completeness 45.62%、combined 40.28、recall 42.59%；逐题 final 文档集合无实质变化，不运行 AB50。 | `configs/eval_pageindex_combined_retrieval_smoke12_20260826.yaml`；对应 cfggen；检索审计报告。 |
 | R6 | 已完成（不放行） | raw-miss embedding/索引覆盖与词法锚点诊断。 | 5/5 目标 chunk 存在且为 BGE-small 384 维；同模型 dense top-200 命中 0/5，BM25 原题/锚点 top-200 命中 0/5；目标分数低于 top-200 边界约 0.10–0.21。live Conan 1792 维与 BGE 索引不兼容，不接入主链。 | `scripts/diag/audit_raw_miss_embedding_lexical.py`；`docs/RAW_MISS_EMBEDDING_LEXICAL_AUDIT_20260826.md`；机器结果 JSON。 |
 | R7 | 已完成（不放行） | raw-miss 题干派生词法实体/数字/版本锚点变体探针。 | 5 题中仅 qst_0231 的 `patient+connector` 组合进入 BM25 top-200（rank 38），恢复 1/5；无稳定单锚点规则，暂不接入主链。 | `scripts/diag/probe_raw_miss_lexical_anchor_variants.py`；`docs/RAW_MISS_LEXICAL_ANCHOR_VARIANTS_20260827.md`；机器结果 JSON。 |
+| R8 | 已完成（不放行） | 低权重实体对候选最小 smoke；每文档最多 2 个 chunk，并检查控制题无回退。 | 官方 8 题 no-correction：correctness 12.50%、recall 15.62%；`qst_0093`、`qst_0211` 两个控制题回退；`qst_0231` 因 question-only 路由为 `unknown` 未触发组合候选。局部 per-query 限制生效，但跨 pair 全局候选仍膨胀。 | `configs/eval_pageindex_lexical_anchor_smoke8_20260827.yaml`；`scripts/cfggen/prepare_pageindex_lexical_anchor_smoke8_20260827.py`；`scripts/remote/apply_lexical_anchor_variant_smoke.py`；`docs/RAW_MISS_LEXICAL_ANCHOR_SMOKE8_20260827.md`。 |
 | F500 | 待开始（门禁已解除） | 新的完整 500 题候选评测。 | A4/B4 已达到 combined 与 correctness 门槛；需单独创建 F500 快照并运行，不能与 AB50 结果混比。 | 新快照、报告、复现说明。 |
 | FC | 待开始 | 提交前官方 correction 复评。 | 与 no-correction 隔离保存，不混比；给出最终差异说明。 | `official_correction/` 产物索引与报告。 |
 
@@ -62,7 +63,7 @@
 
 1. A0.0/A0.1 已完成，A1.P 未通过并已停止；不创建 A1/A2 主链配置。
 2. B1.A 已完成；B1 Smoke10 未通过，已回滚实验规则，不运行 AB50。
-3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1/A3.2/A3.3/A3.4/A3.5、A4/B4 及 R1–R7 检索诊断已完成。候选池扩大、分面配额及其组合均未通过合流门槛；R7 仅发现 1 个可恢复的实体对，下一步做低权重组合锚点最小 smoke，F500 继续停止。
+3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1/A3.2/A3.3/A3.4/A3.5、A4/B4 及 R1–R8 检索诊断已完成。候选池扩大、分面配额、组合保留及 R8 低权重实体对 smoke 均未通过合流门槛；R8 暴露 `unknown` 题型未触发以及跨 pair 全局候选膨胀，下一步先做 unknown-only + 全局配额的只读诊断，F500 继续停止。
 4. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
 5. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
 
@@ -92,3 +93,4 @@
 | 2026-08-26 | R5 | 候选池扩大 + rerank 后分面/文档保留组合 smoke 无增益；与 candidate_k-only 结果一致，未放行 AB50。 | 12 条 answers/trace/simple_metrics/results；官方 no-correction：combined 40.28、correctness 41.67%、recall 42.59%；见检索审计报告。 | 待提交 | 待确认 |
 | 2026-08-26 | R6 | raw-miss 目标文档均在 BGE ES 中，但同模型 dense/BM25 top-200 均未命中；确认排序/表征相关性瓶颈，未放行主链。 | 5 题 ES、dense、BM25、词法锚点只读探针；见 Raw-miss 诊断报告。 | 待提交 | 待确认 |
 | 2026-08-27 | R7 | 题干派生词法锚点变体仅恢复 qst_0231（1/5），其余 raw miss 无变体命中；未放行主链。 | 5 题单锚点/实体对 BM25 top-200 探针；见词法锚点变体报告。 | 待提交 | 待确认 |
+| 2026-08-27 | R8 | 低权重实体对候选 smoke 未通过：8 题 correctness 12.50%、recall 15.62%；qst_0093/qst_0211 控制回退，未放行主链。 | 每文档最多 2 chunk 的 trace 审计、官方 no-correction 评分；见 R8 报告。 | 待提交 | 待确认 |
