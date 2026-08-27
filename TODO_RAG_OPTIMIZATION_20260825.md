@@ -59,7 +59,8 @@
 | R9 | 已完成（不放行） | 集成 unknown 多视图、分面配额及全局每文档/总 chunk 上限，验证系统级检索方向。 | AB50 50/50：correctness 64.00%（不变）、combined 58.57（-0.84）、recall 61.05%（-2.84pp）；`qst_0272` 控制题回退，`qst_0350` 多跳证据被截断；不合流、不运行 F500。 | `configs/eval_pageindex_r9_integrated_retrieval_smoke50_20260827.yaml`；`scripts/cfggen/prepare_pageindex_r9_integrated_retrieval_smoke50_20260827.py`；`scripts/remote/apply_r9_global_document_cap.py`；`docs/SEMANTIC_R9_INTEGRATED_RETRIEVAL_SMOKE50_20260827.md`。 |
 | R10 | 已完成（不放行） | 题型作用域 + 分面/文档软配额 + 题干实体/数字/版本词法对的系统级 smoke。 | 最终 12 题（显式 LLM/reranker 凭据、单并发）correctness 25.00% 持平，但 completeness 18.30%（子集基线 27.02%）、recall 10.65%（基线 21.07%）；6/12 题 inferred route type 漂移；不合流。 | `configs/eval_pageindex_r10_scope_softcap_anchor_smoke12_r3_20260827.yaml`；`scripts/cfggen/prepare_pageindex_r10_scope_softcap_anchor_smoke12_20260827.py`；`scripts/remote/apply_r10_scope_softcap_anchor.py`；`docs/R10_SCOPE_SOFTCAP_LEXICAL_SMOKE12_20260827.md`。 |
 | R11.A（实验 A） | 已完成（离线） | AB50 官方原子事实—检索阶段漏斗审计，逐事实对齐 raw、RRF、rerank、PageIndex/selector、submitted。 | 50 题、211 条事实完成对齐；在 181 条获得期望文档词法支持的事实中，首次丢失为 raw 12、pre-rerank 5、post-rerank 14、final 18、submitted 23；确认先做通用候选覆盖，不先改生成 prompt。 | `scripts/diag/audit_ab50_fact_coverage.py`；`docs/SEMANTIC_AB50_FACT_COVERAGE_AUDIT_20260827.md`。 |
-| R11.B | 待开始 | 结构化但不含答案的 semantic query representation 与原题 dense/BM25 做低权重候选 union；保留原题候选托底。 | 5 个核心 raw-miss + 控制题只读 smoke：raw 目标命中提升、控制题无回退、每文档 chunk 上限生效；未通过则不进入 AB50。 | 新增独立配置、诊断/应用脚本与报告。 |
+| R11.B | 已完成（不放行） | 结构化但不含答案的 semantic query representation 与原题 dense/BM25 做低权重候选 union；保留原题候选托底，并补做 route-independent r2。 | 首轮仅 3/5 raw-miss 进入 structured 分支；r2 route-independent 后仅 `qst_0116` 进入 raw views、0/5 进入 pre-rerank；9 题 correctness 22.22% 持平，但 completeness 33.33%（-5.56pp）、recall 13.89%（-11.11pp）；不合流。 | `configs/eval_pageindex_r11b_structured_query_smoke_20260827.yaml`；`configs/eval_pageindex_r11b_structured_query_smoke_r2_20260827.yaml`；`scripts/cfggen/prepare_pageindex_r11b_structured_query_smoke_20260827.py`；`scripts/cfggen/prepare_pageindex_r11b_structured_query_smoke_r2_20260827.py`；`scripts/remote/apply_r11b_structured_query_union.py`；`scripts/remote/_launch_pageindex_r11b_structured_query_smoke_20260827.sh`；`scripts/remote/_launch_pageindex_r11b_structured_query_smoke_r2_20260827.sh`；`docs/R11B_STRUCTURED_QUERY_UNION_SMOKE_20260827.md`。 |
+| R11.C | 待开始 | 条件式 structured reserve：仅当原题 keyword/dense 低置信或低一致时启用一条 structured query，少量候选进入 reranker；原题候选保留并限制每文档/总 chunk。 | 同一 5 个 raw-miss + 4 个控制题：raw/pre-rerank 目标命中增加，控制题无回退；未通过不进入 AB50。 | 新增独立配置、应用脚本与报告。 |
 | F500 | 待开始（门禁已解除） | 新的完整 500 题候选评测。 | A4/B4 已达到 combined 与 correctness 门槛；需单独创建 F500 快照并运行，不能与 AB50 结果混比。 | 新快照、报告、复现说明。 |
 | FC | 待开始 | 提交前官方 correction 复评。 | 与 no-correction 隔离保存，不混比；给出最终差异说明。 | `official_correction/` 产物索引与报告。 |
 
@@ -67,7 +68,7 @@
 
 1. A0.0/A0.1 已完成，A1.P 未通过并已停止；不创建 A1/A2 主链配置。
 2. B1.A 已完成；B1 Smoke10 未通过，已回滚实验规则，不运行 AB50。
-3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1/A3.4/A3.5、A4/B4 及 R1–R10 检索诊断已完成。R11.A（实验 A）已完成事实级漏斗，确认 raw 候选覆盖是首要检索瓶颈，但 selector、引用和生成仍有独立损失层。下一步先执行 R11.B：结构化查询表示 + 原题 dense/BM25 低权重 union，并保留原题托底；通过 5 个 raw-miss 与控制题 smoke 后，再设计路由规则优先/LLM 回退实验。F500 继续停止。
+3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1/A3.4/A3.5、A4/B4 及 R1–R10 检索诊断已完成。R11.A（实验 A）完成事实级漏斗，确认 raw 候选覆盖是首要检索瓶颈，但 selector、引用和生成仍有独立损失层。R11.B route-independent 复测未通过：structured 表示仅恢复 1/5 raw views，且低权重 RRF 丢失该候选。下一步执行 R11.C 条件式 structured reserve，避免对所有题无条件增加 LLM 调用；通过 5 个 raw-miss 与控制题 smoke 后，再设计规则优先/LLM 回退路由实验。F500 继续停止。
 4. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
 5. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
 
@@ -101,3 +102,4 @@
 | 2026-08-27 | R9 | 集成 unknown 多视图、分面配额及全局文档/chunk 上限未通过：AB50 correctness 64.00% 不变，但 combined 58.57（-0.84）、recall 61.05%（-2.84pp）；qst_0272 控制题回退、qst_0350 多跳证据被硬截断。 | 50 条 answers/trace/simple_metrics/results，官方 no-correction 修正版评分；见 R9 报告。 | 待提交 | 待确认 |
 | 2026-08-27 | R10 | 题型作用域、软配额和词法实体对联合 smoke 未通过：12 题 correctness 25.00% 持平，completeness 18.30%、recall 10.65%，6/12 题 inferred type 漂移；不合流。 | 12 条 answers/trace/simple_metrics/results，显式 LLM/reranker 凭据、官方 no-correction；见 R10 报告。 | 待提交 | 待确认 |
 | 2026-08-27 | R11.A（实验 A） | AB50 原子事实阶段漏斗完成：211 条官方事实中 181 条可在期望文档上获得词法支持；首次丢失 raw 12、pre-rerank 5、post-rerank 14、final 18、submitted 23；核心 5 个 raw-miss 与 R1 一致。 | 生成 `fact_coverage_audit.json`；见实验 A 报告。 | 待提交 | 待确认 |
+| 2026-08-27 | R11.B | 首轮路由门控只覆盖 3/5 raw-miss；route-independent r2 仅恢复 `qst_0116` raw view，0/5 pre-rerank；9 题 correctness 22.22% 持平，completeness/recall 下降；不合流。 | 两轮 answers/trace/results 与 R11.B 报告；远端 patch 已回滚。 | 待提交 | 待确认 |
