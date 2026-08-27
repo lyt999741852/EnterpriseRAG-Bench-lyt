@@ -58,6 +58,8 @@
 | R8 | 已完成（不放行） | 低权重实体对候选最小 smoke；每文档最多 2 个 chunk，并检查控制题无回退。 | 官方 8 题 no-correction：correctness 12.50%、recall 15.62%；`qst_0093`、`qst_0211` 两个控制题回退；`qst_0231` 因 question-only 路由为 `unknown` 未触发组合候选。局部 per-query 限制生效，但跨 pair 全局候选仍膨胀。 | `configs/eval_pageindex_lexical_anchor_smoke8_20260827.yaml`；`scripts/cfggen/prepare_pageindex_lexical_anchor_smoke8_20260827.py`；`scripts/remote/apply_lexical_anchor_variant_smoke.py`；`docs/RAW_MISS_LEXICAL_ANCHOR_SMOKE8_20260827.md`。 |
 | R9 | 已完成（不放行） | 集成 unknown 多视图、分面配额及全局每文档/总 chunk 上限，验证系统级检索方向。 | AB50 50/50：correctness 64.00%（不变）、combined 58.57（-0.84）、recall 61.05%（-2.84pp）；`qst_0272` 控制题回退，`qst_0350` 多跳证据被截断；不合流、不运行 F500。 | `configs/eval_pageindex_r9_integrated_retrieval_smoke50_20260827.yaml`；`scripts/cfggen/prepare_pageindex_r9_integrated_retrieval_smoke50_20260827.py`；`scripts/remote/apply_r9_global_document_cap.py`；`docs/SEMANTIC_R9_INTEGRATED_RETRIEVAL_SMOKE50_20260827.md`。 |
 | R10 | 已完成（不放行） | 题型作用域 + 分面/文档软配额 + 题干实体/数字/版本词法对的系统级 smoke。 | 最终 12 题（显式 LLM/reranker 凭据、单并发）correctness 25.00% 持平，但 completeness 18.30%（子集基线 27.02%）、recall 10.65%（基线 21.07%）；6/12 题 inferred route type 漂移；不合流。 | `configs/eval_pageindex_r10_scope_softcap_anchor_smoke12_r3_20260827.yaml`；`scripts/cfggen/prepare_pageindex_r10_scope_softcap_anchor_smoke12_20260827.py`；`scripts/remote/apply_r10_scope_softcap_anchor.py`；`docs/R10_SCOPE_SOFTCAP_LEXICAL_SMOKE12_20260827.md`。 |
+| R11.A（实验 A） | 已完成（离线） | AB50 官方原子事实—检索阶段漏斗审计，逐事实对齐 raw、RRF、rerank、PageIndex/selector、submitted。 | 50 题、211 条事实完成对齐；在 181 条获得期望文档词法支持的事实中，首次丢失为 raw 12、pre-rerank 5、post-rerank 14、final 18、submitted 23；确认先做通用候选覆盖，不先改生成 prompt。 | `scripts/diag/audit_ab50_fact_coverage.py`；`docs/SEMANTIC_AB50_FACT_COVERAGE_AUDIT_20260827.md`。 |
+| R11.B | 待开始 | 结构化但不含答案的 semantic query representation 与原题 dense/BM25 做低权重候选 union；保留原题候选托底。 | 5 个核心 raw-miss + 控制题只读 smoke：raw 目标命中提升、控制题无回退、每文档 chunk 上限生效；未通过则不进入 AB50。 | 新增独立配置、诊断/应用脚本与报告。 |
 | F500 | 待开始（门禁已解除） | 新的完整 500 题候选评测。 | A4/B4 已达到 combined 与 correctness 门槛；需单独创建 F500 快照并运行，不能与 AB50 结果混比。 | 新快照、报告、复现说明。 |
 | FC | 待开始 | 提交前官方 correction 复评。 | 与 no-correction 隔离保存，不混比；给出最终差异说明。 | `official_correction/` 产物索引与报告。 |
 
@@ -65,7 +67,7 @@
 
 1. A0.0/A0.1 已完成，A1.P 未通过并已停止；不创建 A1/A2 主链配置。
 2. B1.A 已完成；B1 Smoke10 未通过，已回滚实验规则，不运行 AB50。
-3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1/A3.4/A3.5、A4/B4 及 R1–R10 检索诊断已完成。R9/R10 证明单纯增加 unknown 多视图、统一配额和词法对查询不能提升召回；R10 还暴露 inferred route type 漂移和 reranker 压力。下一步先建立稳定的路由置信度/模式契约，再做 PageIndex/selector 交界处的分面文档保留；raw-miss 先离线逐层漏斗，F500 继续停止。
+3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1/A3.4/A3.5、A4/B4 及 R1–R10 检索诊断已完成。R11.A（实验 A）已完成事实级漏斗，确认 raw 候选覆盖是首要检索瓶颈，但 selector、引用和生成仍有独立损失层。下一步先执行 R11.B：结构化查询表示 + 原题 dense/BM25 低权重 union，并保留原题托底；通过 5 个 raw-miss 与控制题 smoke 后，再设计路由规则优先/LLM 回退实验。F500 继续停止。
 4. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
 5. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
 
@@ -98,3 +100,4 @@
 | 2026-08-27 | R8 | 低权重实体对候选 smoke 未通过：8 题 correctness 12.50%、recall 15.62%；qst_0093/qst_0211 控制回退，未放行主链。 | 每文档最多 2 chunk 的 trace 审计、官方 no-correction 评分；见 R8 报告。 | 待提交 | 待确认 |
 | 2026-08-27 | R9 | 集成 unknown 多视图、分面配额及全局文档/chunk 上限未通过：AB50 correctness 64.00% 不变，但 combined 58.57（-0.84）、recall 61.05%（-2.84pp）；qst_0272 控制题回退、qst_0350 多跳证据被硬截断。 | 50 条 answers/trace/simple_metrics/results，官方 no-correction 修正版评分；见 R9 报告。 | 待提交 | 待确认 |
 | 2026-08-27 | R10 | 题型作用域、软配额和词法实体对联合 smoke 未通过：12 题 correctness 25.00% 持平，completeness 18.30%、recall 10.65%，6/12 题 inferred type 漂移；不合流。 | 12 条 answers/trace/simple_metrics/results，显式 LLM/reranker 凭据、官方 no-correction；见 R10 报告。 | 待提交 | 待确认 |
+| 2026-08-27 | R11.A（实验 A） | AB50 原子事实阶段漏斗完成：211 条官方事实中 181 条可在期望文档上获得词法支持；首次丢失 raw 12、pre-rerank 5、post-rerank 14、final 18、submitted 23；核心 5 个 raw-miss 与 R1 一致。 | 生成 `fact_coverage_audit.json`；见实验 A 报告。 | 待提交 | 待确认 |
