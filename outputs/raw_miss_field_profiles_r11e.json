@@ -1,0 +1,274 @@
+{
+  "schema_version": 1,
+  "scope": "R11.E read-only field-profile BM25 probe",
+  "index": "enterprise-rag-bge-small-v1",
+  "top_k": 1000,
+  "summary": {
+    "title_text_balanced": 1,
+    "title_heavy": 1,
+    "cross_fields": 0,
+    "phrase_or_terms": 2
+  },
+  "rows": [
+    {
+      "question_id": "qst_0116",
+      "anchor_tokens": [
+        "SOC2",
+        "readiness",
+        "retention",
+        "duration",
+        "mentioned",
+        "environments"
+      ],
+      "profiles": {
+        "title_text_balanced": {
+          "target_rank": null,
+          "top_score": 26.182653,
+          "tail_score": 16.774862,
+          "target_scores": [],
+          "target_documents": []
+        },
+        "title_heavy": {
+          "target_rank": null,
+          "top_score": 26.182653,
+          "tail_score": 16.774862,
+          "target_scores": [],
+          "target_documents": []
+        },
+        "cross_fields": {
+          "target_rank": null,
+          "top_score": null,
+          "tail_score": null,
+          "target_scores": [],
+          "target_documents": []
+        },
+        "phrase_or_terms": {
+          "target_rank": null,
+          "top_score": 19.331541,
+          "tail_score": 10.857802,
+          "target_scores": [],
+          "target_documents": []
+        }
+      }
+    },
+    {
+      "question_id": "qst_0184",
+      "anchor_tokens": [
+        "minute",
+        "technical",
+        "scheduled",
+        "healthcare",
+        "client",
+        "running",
+        "serving",
+        "inside",
+        "isolated",
+        "network",
+        "window",
+        "Pacific"
+      ],
+      "profiles": {
+        "title_text_balanced": {
+          "target_rank": null,
+          "top_score": 41.16407,
+          "tail_score": 28.793402,
+          "target_scores": [],
+          "target_documents": []
+        },
+        "title_heavy": {
+          "target_rank": null,
+          "top_score": 41.16407,
+          "tail_score": 28.793402,
+          "target_scores": [],
+          "target_documents": []
+        },
+        "cross_fields": {
+          "target_rank": null,
+          "top_score": null,
+          "tail_score": null,
+          "target_scores": [],
+          "target_documents": []
+        },
+        "phrase_or_terms": {
+          "target_rank": null,
+          "top_score": 24.016518,
+          "tail_score": 13.980002,
+          "target_scores": [],
+          "target_documents": []
+        }
+      }
+    },
+    {
+      "question_id": "qst_0231",
+      "anchor_tokens": [
+        "healthcare",
+        "client",
+        "contract",
+        "review",
+        "sending",
+        "patient",
+        "records",
+        "through",
+        "connector",
+        "vendor",
+        "platform",
+        "promised",
+        "retention",
+        "duration",
+        "ingestion",
+        "related",
+        "traces",
+        "default",
+        "customers",
+        "obtain"
+      ],
+      "profiles": {
+        "title_text_balanced": {
+          "target_rank": null,
+          "top_score": 50.692654,
+          "tail_score": 28.145376,
+          "target_scores": [],
+          "target_documents": []
+        },
+        "title_heavy": {
+          "target_rank": null,
+          "top_score": 50.692654,
+          "tail_score": 28.145376,
+          "target_scores": [],
+          "target_documents": []
+        },
+        "cross_fields": {
+          "target_rank": null,
+          "top_score": null,
+          "tail_score": null,
+          "target_scores": [],
+          "target_documents": []
+        },
+        "phrase_or_terms": {
+          "target_rank": 368,
+          "top_score": 33.907017,
+          "tail_score": 19.780005,
+          "target_scores": [
+            22.009499
+          ],
+          "target_documents": [
+            "dsid_5f46d65ae298435889c524bf559f4948"
+          ]
+        }
+      }
+    },
+    {
+      "question_id": "qst_0251",
+      "anchor_tokens": [
+        "subscription",
+        "software",
+        "company",
+        "adding",
+        "powered",
+        "lookup",
+        "across",
+        "internal",
+        "support",
+        "performance",
+        "targets",
+        "overnight",
+        "vectorization",
+        "interactive",
+        "results",
+        "response",
+        "discussed"
+      ],
+      "profiles": {
+        "title_text_balanced": {
+          "target_rank": null,
+          "top_score": 44.45508,
+          "tail_score": 25.828287,
+          "target_scores": [],
+          "target_documents": []
+        },
+        "title_heavy": {
+          "target_rank": null,
+          "top_score": 44.45508,
+          "tail_score": 25.828287,
+          "target_scores": [],
+          "target_documents": []
+        },
+        "cross_fields": {
+          "target_rank": null,
+          "top_score": null,
+          "tail_score": null,
+          "target_scores": [],
+          "target_documents": []
+        },
+        "phrase_or_terms": {
+          "target_rank": null,
+          "top_score": 28.720703,
+          "tail_score": 15.91531,
+          "target_scores": [],
+          "target_documents": []
+        }
+      }
+    },
+    {
+      "question_id": "qst_0298",
+      "anchor_tokens": [
+        "partner",
+        "services",
+        "resells",
+        "operates",
+        "enterprise",
+        "stacks",
+        "expected",
+        "standing",
+        "isolated",
+        "customer",
+        "environment",
+        "region",
+        "management",
+        "required"
+      ],
+      "profiles": {
+        "title_text_balanced": {
+          "target_rank": 879,
+          "top_score": 44.220154,
+          "tail_score": 29.240753,
+          "target_scores": [
+            29.559048
+          ],
+          "target_documents": [
+            "dsid_a9d76bcb3bc1475abc9d6f8f83a6eba8"
+          ]
+        },
+        "title_heavy": {
+          "target_rank": 879,
+          "top_score": 44.220154,
+          "tail_score": 29.240753,
+          "target_scores": [
+            29.559048
+          ],
+          "target_documents": [
+            "dsid_a9d76bcb3bc1475abc9d6f8f83a6eba8"
+          ]
+        },
+        "cross_fields": {
+          "target_rank": null,
+          "top_score": null,
+          "tail_score": null,
+          "target_scores": [],
+          "target_documents": []
+        },
+        "phrase_or_terms": {
+          "target_rank": 565,
+          "top_score": 27.689499,
+          "tail_score": 15.027248,
+          "target_scores": [
+            16.197296
+          ],
+          "target_documents": [
+            "dsid_a9d76bcb3bc1475abc9d6f8f83a6eba8"
+          ]
+        }
+      }
+    }
+  ]
+}
