@@ -61,6 +61,7 @@
 | R11.A（实验 A） | 已完成（离线） | AB50 官方原子事实—检索阶段漏斗审计，逐事实对齐 raw、RRF、rerank、PageIndex/selector、submitted。 | 50 题、211 条事实完成对齐；在 181 条获得期望文档词法支持的事实中，首次丢失为 raw 12、pre-rerank 5、post-rerank 14、final 18、submitted 23；确认先做通用候选覆盖，不先改生成 prompt。 | `scripts/diag/audit_ab50_fact_coverage.py`；`docs/SEMANTIC_AB50_FACT_COVERAGE_AUDIT_20260827.md`。 |
 | R11.B | 已完成（不放行） | 结构化但不含答案的 semantic query representation 与原题 dense/BM25 做低权重候选 union；保留原题候选托底，并补做 route-independent r2。 | 首轮仅 3/5 raw-miss 进入 structured 分支；r2 route-independent 后仅 `qst_0116` 进入 raw views、0/5 进入 pre-rerank；9 题 correctness 22.22% 持平，但 completeness 33.33%（-5.56pp）、recall 13.89%（-11.11pp）；不合流。 | `configs/eval_pageindex_r11b_structured_query_smoke_20260827.yaml`；`configs/eval_pageindex_r11b_structured_query_smoke_r2_20260827.yaml`；`scripts/cfggen/prepare_pageindex_r11b_structured_query_smoke_20260827.py`；`scripts/cfggen/prepare_pageindex_r11b_structured_query_smoke_r2_20260827.py`；`scripts/remote/apply_r11b_structured_query_union.py`；`scripts/remote/_launch_pageindex_r11b_structured_query_smoke_20260827.sh`；`scripts/remote/_launch_pageindex_r11b_structured_query_smoke_r2_20260827.sh`；`docs/R11B_STRUCTURED_QUERY_UNION_SMOKE_20260827.md`。 |
 | R11.C | 已完成（不放行） | 条件式 structured reserve：仅当原题 keyword/dense 前 8 个文档无交集时触发，structured 候选截断为每视图 40 条并保留原题 reserve。 | 9 题官方 no-correction correctness 22.22% 持平；raw-miss 仅 `qst_0116` 进入 raw views 且仍在 pre-rerank 丢失；`qst_0356` 控制题 completeness 由 50% 降至 0%、recall 由 25% 降至 0%；不合流。 | `configs/eval_pageindex_r11c_conditional_structured_reserve_smoke_20260827.yaml`；`scripts/cfggen/prepare_pageindex_r11c_conditional_structured_reserve_smoke_20260827.py`；`scripts/remote/apply_r11c_conditional_structured_reserve.py`；`scripts/remote/_launch_pageindex_r11c_conditional_structured_reserve_smoke_20260827.sh`；`docs/R11C_CONDITIONAL_STRUCTURED_RESERVE_SMOKE_20260827.md`。 |
+| R11.D | 已完成（不放行） | 将 5 个 raw-miss 的同模型 dense/BM25 探针扩大到 top-1000，记录目标分数、排名、尾部分数和索引字段一致性。 | 目标 chunk 5/5 在索引且 384 维；dense top-1000 仅 1/5 命中（`qst_0116` rank 248），BM25 原题 1/5（`qst_0298` rank 879）、锚点 2/5（另 `qst_0231` rank 368）；目标分数比 top-1000 尾部低 0.099–0.182，属于相关性排序不足而非索引缺失；不接入主链。 | `scripts/diag/probe_raw_miss_score_margin_r11d.py`；`outputs/raw_miss_score_margin_r11d.json`；`docs/R11D_RAW_MISS_SCORE_MARGIN_20260828.md`。 |
 | F500 | 待开始（门禁已解除） | 新的完整 500 题候选评测。 | A4/B4 已达到 combined 与 correctness 门槛；需单独创建 F500 快照并运行，不能与 AB50 结果混比。 | 新快照、报告、复现说明。 |
 | FC | 待开始 | 提交前官方 correction 复评。 | 与 no-correction 隔离保存，不混比；给出最终差异说明。 | `official_correction/` 产物索引与报告。 |
 
@@ -68,7 +69,7 @@
 
 1. A0.0/A0.1 已完成，A1.P 未通过并已停止；不创建 A1/A2 主链配置。
 2. B1.A 已完成；B1 Smoke10 未通过，已回滚实验规则，不运行 AB50。
-3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1/A3.4/A3.5、A4/B4 及 R1–R10 检索诊断已完成。R11.A（实验 A）完成事实级漏斗，确认 raw 候选覆盖是首要检索瓶颈，但 selector、引用和生成仍有独立损失层。R11.B route-independent 复测未通过；R11.C 条件门控也未通过：仅恢复 1/5 raw-miss 的 raw 命中，且控制题发生回退。因此不进入 AB50；下一步转向 raw-miss 的 embedding/索引覆盖与候选分数分布诊断，暂不继续扩大 structured/query 改写。F500 继续停止。
+3. B2 与 B3.1 均已停止；A3.A/A3.P/A3.1/A3.4/A3.5、A4/B4 及 R1–R10 检索诊断已完成。R11.A（实验 A）完成事实级漏斗，确认 raw 候选覆盖是首要检索瓶颈，但 selector、引用和生成仍有独立损失层。R11.B route-independent 复测未通过；R11.C 条件门控也未通过：仅恢复 1/5 raw-miss 的 raw 命中，且控制题发生回退。R11.D top-1000 只读探针进一步确认索引覆盖完整，但目标相关性分数显著落后于候选边界。因此不进入 AB50；下一步研究通用的 embedding/索引重建或字段级检索改进，暂不继续扩大 structured/query 改写。F500 继续停止。
 4. A 与 B 的 pipeline 最多各运行一个，总题目并发不超过 2，官方评分始终串行。
 5. 每完成一个任务，先按“Git 提交规则”提交其允许文件，再等待用户确认推送。
 
@@ -104,3 +105,4 @@
 | 2026-08-27 | R11.A（实验 A） | AB50 原子事实阶段漏斗完成：211 条官方事实中 181 条可在期望文档上获得词法支持；首次丢失 raw 12、pre-rerank 5、post-rerank 14、final 18、submitted 23；核心 5 个 raw-miss 与 R1 一致。 | 生成 `fact_coverage_audit.json`；见实验 A 报告。 | 待提交 | 待确认 |
 | 2026-08-27 | R11.B | 首轮路由门控只覆盖 3/5 raw-miss；route-independent r2 仅恢复 `qst_0116` raw view，0/5 pre-rerank；9 题 correctness 22.22% 持平，completeness/recall 下降；不合流。 | 两轮 answers/trace/results 与 R11.B 报告；远端 patch 已回滚。 | 待提交 | 待确认 |
 | 2026-08-27 | R11.C | 条件式低一致门控未通过：structured 仅在原始 keyword/dense 前 8 文档无交集时触发；raw-miss 仍只有 `qst_0116` 进入 raw views，且 pre-rerank 丢失；控制 `qst_0356` completeness/recall 回退。 | 9 条 answers/trace/results/fact audit，官方 no-correction；远端双层 patch 已回滚；见 R11.C 报告。 | 待提交 | 待确认 |
+| 2026-08-28 | R11.D | top-1000 只读分数边界诊断：目标 chunk 5/5 在 BGE 384 维索引；dense 仅 qst_0116 rank 248，BM25 原题仅 qst_0298 rank 879，锚点仅 qst_0231 rank 368 与 qst_0298 rank 565；目标分数低于尾部分数 0.099–0.182。 | 远端 ES/本地 BGE 模型探针；结果 `outputs/raw_miss_score_margin_r11d.json`；见 R11.D 报告。 | 待提交 | 待确认 |

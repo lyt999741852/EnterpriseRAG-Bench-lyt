@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "scope": "R11.D raw-miss score-margin probe",
+  "index": "enterprise-rag-bge-small-v1",
+  "rows": [
+    {
+      "question_id": "qst_0116",
+      "expected_document_ids": [
+        "dsid_48b40afb54b84af28b13cebf017c0616"
+      ],
+      "index_target_chunks": 2,
+      "target_embedding_models": [
+        "BAAI/bge-small-en-v1.5"
+      ],
+      "index_embedding_dims": 384,
+      "probe_dims": 384,
+      "dense_top_k": 1000,
+      "dense_target_rank": 248,
+      "dense_target_max_score": 0.7835090442570003,
+      "dense_tail_score": 0.8828411,
+      "dense_margin_to_tail": 0.09933205574299975,
+      "bm25_question_target_rank": null,
+      "bm25_anchor_target_rank": null,
+      "anchor_tokens": [
+        "SOC2",
+        "readiness",
+        "retention",
+        "duration",
+        "mentioned",
+        "environments"
+      ]
+    },
+    {
+      "question_id": "qst_0184",
+      "expected_document_ids": [
+        "dsid_74cd6ebda84547e2a534f8f6d1b49739"
+      ],
+      "index_target_chunks": 2,
+      "target_embedding_models": [
+        "BAAI/bge-small-en-v1.5"
+      ],
+      "index_embedding_dims": 384,
+      "probe_dims": 384,
+      "dense_top_k": 1000,
+      "dense_target_rank": null,
+      "dense_target_max_score": 0.6850129907771624,
+      "dense_tail_score": 0.8669996,
+      "dense_margin_to_tail": 0.1819866092228376,
+      "bm25_question_target_rank": null,
+      "bm25_anchor_target_rank": null,
+      "anchor_tokens": [
+        "minute",
+        "technical",
+        "scheduled",
+        "healthcare",
+        "client",
+        "running",
+        "serving",
+        "inside",
+        "isolated",
+        "network",
+        "window",
+        "Pacific"
+      ]
+    },
+    {
+      "question_id": "qst_0231",
+      "expected_document_ids": [
+        "dsid_5f46d65ae298435889c524bf559f4948"
+      ],
+      "index_target_chunks": 2,
+      "target_embedding_models": [
+        "BAAI/bge-small-en-v1.5"
+      ],
+      "index_embedding_dims": 384,
+      "probe_dims": 384,
+      "dense_top_k": 1000,
+      "dense_target_rank": null,
+      "dense_target_max_score": 0.7224232164562885,
+      "dense_tail_score": 0.87546635,
+      "dense_margin_to_tail": 0.15304313354371146,
+      "bm25_question_target_rank": null,
+      "bm25_anchor_target_rank": 368,
+      "anchor_tokens": [
+        "healthcare",
+        "client",
+        "contract",
+        "review",
+        "sending",
+        "patient",
+        "records",
+        "through",
+        "connector",
+        "vendor",
+        "platform",
+        "promised",
+        "retention",
+        "duration",
+        "ingestion",
+        "related",
+        "traces",
+        "default",
+        "customers",
+        "obtain"
+      ]
+    },
+    {
+      "question_id": "qst_0251",
+      "expected_document_ids": [
+        "dsid_a15c0247e9de4e128293bd820fc4c659"
+      ],
+      "index_target_chunks": 1,
+      "target_embedding_models": [
+        "BAAI/bge-small-en-v1.5"
+      ],
+      "index_embedding_dims": 384,
+      "probe_dims": 384,
+      "dense_top_k": 1000,
+      "dense_target_rank": null,
+      "dense_target_max_score": 0.7177607141826591,
+      "dense_tail_score": 0.87841225,
+      "dense_margin_to_tail": 0.16065153581734093,
+      "bm25_question_target_rank": null,
+      "bm25_anchor_target_rank": null,
+      "anchor_tokens": [
+        "subscription",
+        "software",
+        "company",
+        "adding",
+        "powered",
+        "lookup",
+        "across",
+        "internal",
+        "support",
+        "performance",
+        "targets",
+        "overnight",
+        "vectorization",
+        "interactive",
+        "results",
+        "response",
+        "discussed"
+      ]
+    },
+    {
+      "question_id": "qst_0298",
+      "expected_document_ids": [
+        "dsid_a9d76bcb3bc1475abc9d6f8f83a6eba8"
+      ],
+      "index_target_chunks": 4,
+      "target_embedding_models": [
+        "BAAI/bge-small-en-v1.5"
+      ],
+      "index_embedding_dims": 384,
+      "probe_dims": 384,
+      "dense_top_k": 1000,
+      "dense_target_rank": null,
+      "dense_target_max_score": 0.7164257303340309,
+      "dense_tail_score": 0.8606825,
+      "dense_margin_to_tail": 0.14425676966596912,
+      "bm25_question_target_rank": 879,
+      "bm25_anchor_target_rank": 565,
+      "anchor_tokens": [
+        "partner",
+        "services",
+        "resells",
+        "operates",
+        "enterprise",
+        "stacks",
+        "expected",
+        "standing",
+        "isolated",
+        "customer",
+        "environment",
+        "region",
+        "management",
+        "required"
+      ]
+    }
+  ],
+  "summary": {
+    "dense_target_rank_le_1000": 1,
+    "bm25_question_rank_le_1000": 1,
+    "bm25_anchor_rank_le_1000": 2
+  }
+}
