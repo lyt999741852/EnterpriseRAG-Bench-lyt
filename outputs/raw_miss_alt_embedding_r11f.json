@@ -1,0 +1,483 @@
+{
+  "schema_version": 1,
+  "scope": "R11.F alternate embedding separation pilot",
+  "index": "enterprise-rag-bge-small-v1",
+  "candidate_k": 300,
+  "summary": {
+    "questions_with_target_rank_le_pool": 5,
+    "questions_with_target_rank_le_30": 3,
+    "conan_dimension": [
+      1792
+    ]
+  },
+  "rows": [
+    {
+      "question_id": "qst_0116",
+      "candidate_pool_size": 591,
+      "bge_dense_candidates": 300,
+      "bm25_candidates": 300,
+      "target_chunks": 2,
+      "target_pool_origins": [
+        "target"
+      ],
+      "conan_dim": 1792,
+      "alternate_target_ranks": [
+        3,
+        77
+      ],
+      "alternate_target_scores": [
+        0.81498403018798,
+        0.7823590404454747
+      ],
+      "alternate_candidate_tail_score": 0.6652353632446562,
+      "alternate_top10": [
+        {
+          "chunk_id": "dsid_1deb78038a714d44a449756bb96b4f9d__fixed-v2__chunk00000",
+          "score": 0.8170028644230004,
+          "origin": [
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_e28855c0581e4fa2a5db732969288b21__fixed-v2__chunk00000",
+          "score": 0.815666811647573,
+          "origin": [
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_48b40afb54b84af28b13cebf017c0616__fixed-v2__chunk00000",
+          "score": 0.81498403018798,
+          "origin": [
+            "target"
+          ]
+        },
+        {
+          "chunk_id": "dsid_4cd71cfd42334cb6a991e2484b47a896__fixed-v2__chunk00003",
+          "score": 0.8100113720692368,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_b27b87d2f00b4b859929a309c55e5b23__fixed-v2__chunk00001",
+          "score": 0.8082586108074189,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_bcdcfe5235494cc99e98777d5d475e6d__fixed-v2__chunk00000",
+          "score": 0.8041020118989833,
+          "origin": [
+            "bge_dense",
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_38cea77f0c0c45e9a08e6b9e9bc4a41f__fixed-v2__chunk00000",
+          "score": 0.8014418916869984,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_93b4a3eb394846ca9f5a751cca06cf3b__fixed-v2__chunk00001",
+          "score": 0.8012002175958033,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_9b8b22e3daa448848803508025ec1c6b__fixed-v2__chunk00001",
+          "score": 0.8009589125270973,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_a8b13e2d5aab49b9940a68cd4ce8208d__fixed-v2__chunk00000",
+          "score": 0.800606719474162,
+          "origin": [
+            "bm25"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "qst_0184",
+      "candidate_pool_size": 562,
+      "bge_dense_candidates": 300,
+      "bm25_candidates": 300,
+      "target_chunks": 2,
+      "target_pool_origins": [
+        "target"
+      ],
+      "conan_dim": 1792,
+      "alternate_target_ranks": [
+        539,
+        555
+      ],
+      "alternate_target_scores": [
+        0.7099927320948439,
+        0.701412520424083
+      ],
+      "alternate_candidate_tail_score": 0.6802553842285569,
+      "alternate_top10": [
+        {
+          "chunk_id": "dsid_e6730546e41d46c8a057175387955b71__fixed-v2__chunk00000",
+          "score": 0.8370310571502847,
+          "origin": [
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_c2291355e80a4af8802e4a46693ff220__fixed-v2__chunk00000",
+          "score": 0.8343296143046898,
+          "origin": [
+            "bge_dense",
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_4375f9ad18164428aa7448c370f6a092__fixed-v2__chunk00001",
+          "score": 0.8290273928577939,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_e1d50bd0cc744da4b5f5cbe64c27e3ff__fixed-v2__chunk00000",
+          "score": 0.8268468933785917,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_e16c98b651d54e989748e50ba625f307__fixed-v2__chunk00000",
+          "score": 0.8264387632191966,
+          "origin": [
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_5684fb63fe354996867bede87e739941__fixed-v2__chunk00000",
+          "score": 0.8250739946141586,
+          "origin": [
+            "bge_dense",
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_d75b3690ff824de3bfb5d65d9ef7268f__fixed-v2__chunk00000",
+          "score": 0.8228416013047506,
+          "origin": [
+            "bge_dense",
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_295f0540829c46049c11b33b7a4ef4dc__fixed-v2__chunk00000",
+          "score": 0.8218581079637096,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_56d1876810d348e0ae74111feb130b07__fixed-v2__chunk00002",
+          "score": 0.8213809286025666,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_047e8a7f247e4c0a99488c418ded7a82__fixed-v2__chunk00001",
+          "score": 0.8205084215095424,
+          "origin": [
+            "bm25"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "qst_0231",
+      "candidate_pool_size": 587,
+      "bge_dense_candidates": 300,
+      "bm25_candidates": 300,
+      "target_chunks": 2,
+      "target_pool_origins": [
+        "target"
+      ],
+      "conan_dim": 1792,
+      "alternate_target_ranks": [
+        235,
+        305
+      ],
+      "alternate_target_scores": [
+        0.7767883472679484,
+        0.7679593411234629
+      ],
+      "alternate_candidate_tail_score": 0.6741700376565637,
+      "alternate_top10": [
+        {
+          "chunk_id": "dsid_771b5b62a3604ffca5d80818341264f5__fixed-v2__chunk00001",
+          "score": 0.8403427843836971,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_0dd5c2ea2fcf48b9a0fe620377b1d20f__fixed-v2__chunk00001",
+          "score": 0.8330824419732261,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_8b37d02b78b1489f93cb467fe0fa7581__fixed-v2__chunk00000",
+          "score": 0.8279099032756789,
+          "origin": [
+            "bge_dense",
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_dea9de3e5e904e4aa4e173e254e785c7__fixed-v2__chunk00000",
+          "score": 0.8278143003193595,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_64f18c0603c3489190de11b64216a447__fixed-v2__chunk00000",
+          "score": 0.8228436612184519,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_01de4d2864d64498a12818545070d18d__fixed-v2__chunk00001",
+          "score": 0.8220163899126448,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_8436d5f583ee4957857012502a0ab260__fixed-v2__chunk00000",
+          "score": 0.821486943657342,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_7405cc2d32e44b37ba400ed2eca106b0__fixed-v2__chunk00001",
+          "score": 0.819833394311445,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_4124b5ba77e7448c9a20cfa3857e9037__fixed-v2__chunk00001",
+          "score": 0.8179033875030657,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_4c16cc852cf542a7b79a23bf10213b88__fixed-v2__chunk00000",
+          "score": 0.8176629355918127,
+          "origin": [
+            "bge_dense"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "qst_0251",
+      "candidate_pool_size": 591,
+      "bge_dense_candidates": 300,
+      "bm25_candidates": 300,
+      "target_chunks": 1,
+      "target_pool_origins": [
+        "target"
+      ],
+      "conan_dim": 1792,
+      "alternate_target_ranks": [
+        7
+      ],
+      "alternate_target_scores": [
+        0.8417344389246959
+      ],
+      "alternate_candidate_tail_score": 0.7348753445765565,
+      "alternate_top10": [
+        {
+          "chunk_id": "dsid_9f59a41a9690409789dc4baa02b24993__fixed-v2__chunk00000",
+          "score": 0.8566959483627569,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_9800d7f35ee94aae94ad8a650980312e__fixed-v2__chunk00000",
+          "score": 0.8510807778324556,
+          "origin": [
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_30641dbf5fd9461cae3360ff5cfb3918__fixed-v2__chunk00000",
+          "score": 0.8504492718004176,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_f32e8a95dbd64b05a88e303f9e42bbdf__fixed-v2__chunk00001",
+          "score": 0.8497383351340957,
+          "origin": [
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_dcdeb276517e405588b8261162eb394c__fixed-v2__chunk00000",
+          "score": 0.84455990681964,
+          "origin": [
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_3a65a8b7db43452c910404931c65e877__fixed-v2__chunk00000",
+          "score": 0.8420886104607578,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_a15c0247e9de4e128293bd820fc4c659__fixed-v2__chunk00000",
+          "score": 0.8417344389246959,
+          "origin": [
+            "target"
+          ]
+        },
+        {
+          "chunk_id": "dsid_a03df8f468364e07a5ff8d840d27bca6__fixed-v2__chunk00000",
+          "score": 0.8401917504798601,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_bd47b72244e741cd898d457dcd08a55a__fixed-v2__chunk00000",
+          "score": 0.8401807005107981,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_cf9ff78195c141dd9fbfb213b9e30146__fixed-v2__chunk00000",
+          "score": 0.8387019697469323,
+          "origin": [
+            "bm25"
+          ]
+        }
+      ]
+    },
+    {
+      "question_id": "qst_0298",
+      "candidate_pool_size": 596,
+      "bge_dense_candidates": 300,
+      "bm25_candidates": 300,
+      "target_chunks": 4,
+      "target_pool_origins": [
+        "target"
+      ],
+      "conan_dim": 1792,
+      "alternate_target_ranks": [
+        30,
+        527,
+        541,
+        574
+      ],
+      "alternate_target_scores": [
+        0.7746548210779474,
+        0.707455991336923,
+        0.7039811946585167,
+        0.6915728010170964
+      ],
+      "alternate_candidate_tail_score": 0.6649448341660864,
+      "alternate_top10": [
+        {
+          "chunk_id": "dsid_5f36e6ac5b1c4847ba4a06d9ecb36d8b__fixed-v2__chunk00000",
+          "score": 0.8016358828384715,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_369ba2ab0c464f3887b4d6dfc85c3b1c__fixed-v2__chunk00000",
+          "score": 0.7962790606859589,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_3ace0c115f2a4068b73311534e0ba8e1__fixed-v2__chunk00000",
+          "score": 0.794804043310097,
+          "origin": [
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_23411ee1d1074638b5f9e9642fe6c8de__fixed-v2__chunk00000",
+          "score": 0.7921487569947206,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_a9f17432470d4d91a7f519a00ea72c8d__fixed-v2__chunk00000",
+          "score": 0.7889255008421718,
+          "origin": [
+            "bge_dense",
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_3f0a8bad307c41ca9f063fb749afd94d__fixed-v2__chunk00000",
+          "score": 0.7883763791614348,
+          "origin": [
+            "bm25"
+          ]
+        },
+        {
+          "chunk_id": "dsid_7b76727af20c41638e1487bdbac85385__fixed-v2__chunk00000",
+          "score": 0.7869670900780218,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_c46ae7e3f29f48a4b8a7c397bd8666ff__fixed-v2__chunk00001",
+          "score": 0.7859002989210309,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_84877e4e49fc4f27a15957c456659fc7__fixed-v2__chunk00001",
+          "score": 0.7858859506686643,
+          "origin": [
+            "bge_dense"
+          ]
+        },
+        {
+          "chunk_id": "dsid_3a761776996d462586083d5d71c9fac6__fixed-v2__chunk00000",
+          "score": 0.7822204658160843,
+          "origin": [
+            "bge_dense"
+          ]
+        }
+      ]
+    }
+  ]
+}
