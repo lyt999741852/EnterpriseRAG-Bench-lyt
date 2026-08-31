@@ -36,6 +36,13 @@
 - **指标**：Recall@30/120/240/1000、目标分数 margin、索引覆盖率、查询延迟和吞吐。
 - **门槛**：新 embedding 在目标子集 Recall@240/1000 有稳定净增益，且索引覆盖完整；否则不重建全量库。
 
+#### O3.1：raw-miss 索引覆盖、BM25、dense 与候选保留复核已完成（2026-08-31）
+
+- 46 道有效 raw-miss 涉及的 61 个 gold 文档在 BGE-small 与 Conan 索引中均存在，排除“索引缺文档”作为主因。
+- BGE-small：BM25 top-1000 命中 23/46、dense 命中 5/46、both-miss 23/46；Conan：BM25 25/46、dense 4/46、both-miss 18/46。Semantic 35 题中 BGE dense 4 题、Conan dense 2 题，Conan 未改善核心 semantic raw-miss。
+- O0 阶段保留复核显示 raw/pre/post-rerank 均为 0/46，但最终候选恢复 3 题、提交证据仅 2 题（`qst_0191`、`qst_0298`），存在独立的 admission/提交丢失。
+- 结论：后续不再优先重建 Conan；应对 `both_miss` 做字段/切块/表示诊断，对 `lexical_only` 做通用 BM25+dense append-only 候选并集，并单独修复最终证据 admission，禁止题目级关键词硬编码。
+
 ### O4：文档/分面软融合 smoke
 
 - **前置**：仅在 O1/O2 证明候选已进入池后执行。

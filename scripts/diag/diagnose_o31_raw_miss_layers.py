@@ -99,6 +99,14 @@ def main() -> int:
         row for row in funnel.get("rows", [])
         if row.get("bucket") == "raw_miss" and row.get("expected_document_ids")
     ]
+    funnel_by_qid = {str(row["question_id"]): row for row in raw_rows}
+    retention_stages = (
+        "raw_views",
+        "pre_rerank",
+        "post_rerank",
+        "final_before_generation",
+        "submitted",
+    )
     qids = [str(row["question_id"]) for row in raw_rows if str(row["question_id"]) in questions]
     o3_rows = {str(row["question_id"]): row for row in o3.get("rows", [])}
     qids = [qid for qid in qids if qid in o3_rows]
@@ -120,6 +128,16 @@ def main() -> int:
             "question_id": qid,
             "question_type": questions[qid].get("question_type"),
             "expected_document_ids": sorted(expected),
+            "candidate_retention": {
+                stage: bool(
+                    expected
+                    & {
+                        str(value)
+                        for value in (funnel_by_qid[qid].get("stage_document_ids") or {}).get(stage, [])
+                    }
+                )
+                for stage in retention_stages
+            },
         }
         for model_name, base, index in (
             ("bge", args.bge_es, args.bge_index),
@@ -160,6 +178,10 @@ def main() -> int:
             "index_present_count": sum(row[model_name]["index_present"] for row in group),
             "dense_hit_count": sum(row[model_name]["dense_rank"] is not None for row in group),
             "bm25_hit_count": sum(row[model_name]["bm25_rank"] is not None for row in group),
+            "candidate_retention_count": {
+                stage: sum(row["candidate_retention"][stage] for row in group)
+                for stage in retention_stages
+            },
         }
 
     by_type: dict[str, list[dict]] = {}
@@ -167,7 +189,7 @@ def main() -> int:
         by_type.setdefault(str(row.get("question_type") or "unknown"), []).append(row)
     output = {
         "schema_version": 1,
-        "scope": "O3.1 index presence + BM25 + O3 dense rank on effective raw-miss",
+        "scope": "O3.1 index presence + BM25 + O3 dense rank + O0 candidate retention on effective raw-miss",
         "question_count": len(rows),
         "expected_document_count": len(all_expected),
         "indices": {
