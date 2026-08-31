@@ -72,6 +72,13 @@
 - 仍有风险：`qst_0413` completeness 仅 12.5%，答案包含与 gold facts 不一致的 5 business days/infra-manager 额外断言，但 DPV4 judge 未判错。
 - 下一步：O4.P3.4 增加冲突题确定性事实约束和独立裁判复核，通过后再扩大到 conflict AB50。
 
+#### O4.P3.4 已完成（2026-08-31）
+
+- 4 题确定性约束 smoke：DPV4 裁判 correctness 100.00%、combined 86.46；独立 Qwen 裁判 correctness 75.00%、combined 48.96。
+- 通过项：`qst_0413` 的冲突时长/批准人错误句被删除；`qst_0386/qst_0416` 保持正确；检索 recall 无变化，说明收益来自生成后约束。
+- 重要发现：question-only 路由将 `qst_0413` 误判为 constrained，需保留非 gold 的冲突意图兜底；DPV4 与 Qwen 的分数差异确认自评偏高风险。
+- 下一步：字段级批准人/时长约束 + 冲突题 AB50 双裁判复测，暂不合入主链/F500。
+
 ### O5：题型局部生成优化（检索通过后）
 
 - **Semantic**：要求基于证据回答，不将“未找到”当作默认结论；不得伪造缺失事实。
