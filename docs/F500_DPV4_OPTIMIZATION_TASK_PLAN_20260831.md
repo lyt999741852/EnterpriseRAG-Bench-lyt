@@ -43,6 +43,12 @@
 - O0 阶段保留复核显示 raw/pre/post-rerank 均为 0/46，但最终候选恢复 3 题、提交证据仅 2 题（`qst_0191`、`qst_0298`），存在独立的 admission/提交丢失。
 - 结论：后续不再优先重建 Conan；应对 `both_miss` 做字段/切块/表示诊断，对 `lexical_only` 做通用 BM25+dense append-only 候选并集，并单独修复最终证据 admission，禁止题目级关键词硬编码。
 
+#### O3.4：索引质量验证已完成（2026-08-31）
+
+- 两套索引均为 green，46 题涉及的 61 个 gold 文档全部存在；目标 chunks 无空 text、无缺失 embedding、无 chunk index gap，抽样向量维度与范数正常。
+- 已确认索引质量缺口：BGE 全库没有实际 `title` 值，Conan mapping 无 `title`；BGE 当前目标 chunk 文本中位数约 3,242 字符且 overlap=0，缺少标题/父级上下文拼接。
+- 结论：不是灾难性入库失败，而是 chunk/字段表征可能不利于 Semantic dense；下一步用 61 个文档建立“标题/路径+父级上下文+正文”的 BGE 小型对照索引，先测 Recall@30/120/240/1000，不直接重建全库。
+
 ### O4：文档/分面软融合 smoke
 
 - **前置**：仅在 O1/O2 证明候选已进入池后执行。
