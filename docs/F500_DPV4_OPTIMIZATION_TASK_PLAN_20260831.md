@@ -49,6 +49,13 @@
 - 已确认索引质量缺口：BGE 全库没有实际 `title` 值，Conan mapping 无 `title`；BGE 当前目标 chunk 文本中位数约 3,242 字符且 overlap=0，缺少标题/父级上下文拼接。
 - 结论：不是灾难性入库失败，而是 chunk/字段表征可能不利于 Semantic dense；下一步用 61 个文档建立“标题/路径+父级上下文+正文”的 BGE 小型对照索引，先测 Recall@30/120/240/1000，不直接重建全库。
 
+#### O3.5：索引质量 A/B 小型对照索引已建立（2026-08-31）
+
+- A：`o34_quality_a_bge_small_20260831`，61 docs / 120 chunks，当前 text-only `512/0`。
+- B：`o34_quality_b_bge_small_20260831`，61 docs / 149 chunks，加入 source path、文件名 title、首行 section context，使用 `448/64`。
+- 两个索引均 green、计数正确、384 维 BGE 向量一致；尚未接入主链。
+- 下一步只做 46 题 doc-level Recall@30/120/240/1000 对照，验证上下文/overlap 是否真正改善 raw-miss。
+
 ### O4：文档/分面软融合 smoke
 
 - **前置**：仅在 O1/O2 证明候选已进入池后执行。
