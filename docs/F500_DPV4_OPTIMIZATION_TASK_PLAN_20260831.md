@@ -51,6 +51,13 @@
 - 未通过项：semantic correctness 无提升，project raw recall 下降，`qst_0413` conflicting_info 回退；因此暂不放行 F500。
 - 下一步：先做 conflict 契约单变量回归，再做 semantic/project raw-miss 的通用 shadow 候选补召回；额外文档数量只记录，不作为阻断门槛。
 
+#### O4.P3.1 已完成（2026-08-31）
+
+- 4 题 conflict-contract smoke：correctness 75.00%、completeness 73.96%、combined 70.83、recall 87.50%。
+- `qst_0413` 仍错误且 recall=100%，证明 selector 的 `resolved_conflicts` 契约单独不足以修复作用域/批准人判断。
+- 控制题 `qst_0322`、`qst_0386` 均正确，未发现通用回退。
+- 下一步：O4.P3.2 仅改 fact verification/final audit 的生成阶段 guard；若仍失败，记录 selector 原始 JSON 和最终证据片段，定位到具体再解释层。
+
 ### O5：题型局部生成优化（检索通过后）
 
 - **Semantic**：要求基于证据回答，不将“未找到”当作默认结论；不得伪造缺失事实。
