@@ -79,6 +79,13 @@
 - 重要发现：question-only 路由将 `qst_0413` 误判为 constrained，需保留非 gold 的冲突意图兜底；DPV4 与 Qwen 的分数差异确认自评偏高风险。
 - 下一步：字段级批准人/时长约束 + 冲突题 AB50 双裁判复测，暂不合入主链/F500。
 
+#### O4.P3.4 AB50 双裁判复测已完成（2026-08-31）
+
+- 50 题答案统一由 DPV4 生成；DPV4 裁判 correctness 78.00%、completeness 76.11%、combined 71.20、recall 76.12%。
+- 独立 Qwen/Lark 裁判 correctness 68.00%、completeness 68.61%、combined 59.68、recall 76.12%；与 DPV4 逐题 correctness 一致 45/50（90%）。
+- `qst_0413`、`qst_0416` 两道 `conflicting_info` 均被两裁判判正确；`qst_0413` 的冲突批准人/时长扩写已被约束删除，但独立裁判 completeness 仅 12.50%。
+- 结论：冲突 guard 的安全收益得到复现，但 DPV4 自评偏高且独立裁判未显示整体 correctness 提升；不放行全局/F500，保留为冲突题限定分支。后续优先回到 semantic/project raw-miss 与通用候选覆盖。
+
 ### O5：题型局部生成优化（检索通过后）
 
 - **Semantic**：要求基于证据回答，不将“未找到”当作默认结论；不得伪造缺失事实。
