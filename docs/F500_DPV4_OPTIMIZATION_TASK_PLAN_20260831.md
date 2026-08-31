@@ -65,6 +65,13 @@
 - `qst_0322` 控制题由正确回退为错误，证明全局 fact verification/final audit guard 过宽，暂不放行。
 - 下一步：O4.P3.3 将 guard 限定为 `conflicting_info` 题型，复测同一 4 题后再考虑冲突题 AB50。
 
+#### O4.P3.3 已完成（2026-08-31）
+
+- 4 题题型限定 guard smoke：correctness 100.00%、completeness 73.96%、combined 73.96、recall 87.50%。
+- `qst_0413` 保持正确，`qst_0322/qst_0386` 控制题均无回退，证明 guard 作用域应限定为 `conflicting_info`。
+- 仍有风险：`qst_0413` completeness 仅 12.5%，答案包含与 gold facts 不一致的 5 business days/infra-manager 额外断言，但 DPV4 judge 未判错。
+- 下一步：O4.P3.4 增加冲突题确定性事实约束和独立裁判复核，通过后再扩大到 conflict AB50。
+
 ### O5：题型局部生成优化（检索通过后）
 
 - **Semantic**：要求基于证据回答，不将“未找到”当作默认结论；不得伪造缺失事实。
