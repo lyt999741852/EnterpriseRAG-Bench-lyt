@@ -66,6 +66,7 @@ def index_matches(base: str, index: str, expected: list[str]) -> set[str]:
     body = {
         "size": min(100, len(expected)),
         "_source": ["doc_id"],
+        "collapse": {"field": "doc_id"},
         "query": {"terms": {"doc_id": expected}},
     }
     req = Request(

@@ -46,6 +46,7 @@ def index_doc_ids(base: str, index: str, expected: list[str]) -> set[str]:
     body = {
         "size": min(100, len(expected)),
         "_source": ["doc_id"],
+        "collapse": {"field": "doc_id"},
         "query": {"terms": {"doc_id": expected}},
     }
     hits = call_json(f"{base.rstrip('/')}/{index}/_search", body).get("hits", {}).get("hits", [])
