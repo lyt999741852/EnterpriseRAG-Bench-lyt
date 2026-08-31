@@ -58,6 +58,13 @@
 - 控制题 `qst_0322`、`qst_0386` 均正确，未发现通用回退。
 - 下一步：O4.P3.2 仅改 fact verification/final audit 的生成阶段 guard；若仍失败，记录 selector 原始 JSON 和最终证据片段，定位到具体再解释层。
 
+#### O4.P3.2 已完成（2026-08-31）
+
+- 4 题生成 guard smoke：correctness 75.00%、completeness 73.96%、combined 61.46、recall 87.50%。
+- `qst_0413` 从错误修复为正确，证明作用域优先规则在生成阶段有效。
+- `qst_0322` 控制题由正确回退为错误，证明全局 fact verification/final audit guard 过宽，暂不放行。
+- 下一步：O4.P3.3 将 guard 限定为 `conflicting_info` 题型，复测同一 4 题后再考虑冲突题 AB50。
+
 ### O5：题型局部生成优化（检索通过后）
 
 - **Semantic**：要求基于证据回答，不将“未找到”当作默认结论；不得伪造缺失事实。
