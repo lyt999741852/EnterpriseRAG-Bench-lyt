@@ -14,7 +14,7 @@
 | completeness | 63.98% | **77.07%** | +13.09pp |
 | combined | 56.48 | **71.48** | +15.00 |
 | document recall | 59.58% | **73.33%** | +13.75pp |
-| invalid extra docs | 0.15 | 0.35 | +0.20 |
+| invalid extra docs | 0.15 | 0.35 | +0.20（按打榜规则可接受） |
 
 20/20 题均完成，0 skipped、0 corrected。basic 控制题仍为 3/3 正确，未见基础路径回退。
 
@@ -30,15 +30,15 @@
 
 扩大 selector 候选预算在本轮总体结果较好，但不能单独解释为“预算修复成功”：O4.P、O4.P2 是不同 DPV4 运行，且 semantic/constrained 仍有回退。`qst_0176` 的目标文档在最终候选前列却仍未被 selector 采用，表明问题还包括 selector 的相关性判断/拒答策略，而非单纯的 24 项截断。
 
-同时，invalid extra docs 从 0.15 上升到 0.35，尤其 constrained 题出现明显额外文档，不能直接把 `candidate_chunks=30` 和 soft pool 一起推广到 F500。
+同时，invalid extra docs 从 0.15 上升到 0.35，尤其 constrained 题出现明显额外文档。按当前打榜规则，额外文档不影响最终评分，因此该指标只作为诊断和上下文成本观测，不再作为是否推广的阻断条件。
 
 ## 下一步建议
 
-进入 O4.P3：采用预算感知软融合，不再无条件追加两个文档：
+进入 O4.P3：采用预算感知软融合，重点解决 semantic/constrained 的答案回退，不再把额外文档数量作为硬门槛：
 
 1. 仅当新增文档有独立 rerank 支持且不会把原候选有效文档移出 selector 窗口时才追加；
 2. 对 semantic/constrained 限制为最多 1 个新增文档；
-3. 保持 selector 预算 30，继续记录目标文档保留、selector 空集、invalid extra docs；
+3. 保持 selector 预算 30，继续记录目标文档保留、selector 空集、invalid extra docs（仅观测）；
 4. 先做 10 题针对性 smoke，控制 semantic 回退后再进行 50 题验证。
 
 产物目录：`outputs/pageindex_o4p2_soft_pool_smoke20_20260831/`。
