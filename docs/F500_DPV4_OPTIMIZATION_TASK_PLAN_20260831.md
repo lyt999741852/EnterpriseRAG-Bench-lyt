@@ -90,6 +90,13 @@
 - 通过门槛：gold metadata 覆盖 100%、全库字段覆盖率 ≥99%、top-500 union 至少 15/46 raw-miss 候选覆盖、rerank 无超时、控制题 correctness 不下降、同题 combined 不低于基线。
 - 失败时保留诊断并回退 shadow，不进入 AB50/F500；详细步骤见 `docs/O3_9_METADATA_BM25_TOP500_PLAN_20260901.md`。
 
+#### S1：通用 Semantic 查询视图离线回放（2026-09-01）
+
+- 仅从问题文本生成 `event`、`relation`、`object_time` 三类通用视图，不注入答案、gold 文档或隐藏实体。
+- Semantic 125 题的多视图集合并集上限由 Recall@500=80.8% 提升到 81.6%，@120 由 68.0% 提升到 69.6%；345 道控制题 @500 由 97.68% 提升到 98.26%。
+- 代表性 qst_0247 仍未进入任一视图的 top-500，说明简单槽位改写不能解决“问题描述事件、文档使用具体实体/标题”的表达鸿沟；多视图平均耗时约 2.7–2.9 秒/题。
+- 结论：S1 不放行 RAG smoke，不进入主链；下一步转 S2 文档级 chunk 聚合与首段/header 定位。详见 `docs/S1_SEMANTIC_GENERIC_VIEWS_20260901.md`。
+
 ### O4：文档/分面软融合 smoke
 
 - **前置**：仅在 O1/O2 证明候选已进入池后执行。
