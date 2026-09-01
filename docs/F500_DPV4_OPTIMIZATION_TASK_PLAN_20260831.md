@@ -97,6 +97,12 @@
 - 代表性 qst_0247 仍未进入任一视图的 top-500，说明简单槽位改写不能解决“问题描述事件、文档使用具体实体/标题”的表达鸿沟；多视图平均耗时约 2.7–2.9 秒/题。
 - 结论：S1 不放行 RAG smoke，不进入主链；下一步转 S2 文档级 chunk 聚合与首段/header 定位。详见 `docs/S1_SEMANTIC_GENERIC_VIEWS_20260901.md`。
 
+#### S2：文档级 chunk 聚合与 header-first 回放（2026-09-01）
+
+- 原始 dense/BM25 top-500 按 `doc_id` 聚合后，Semantic 文档候选 Top-30=47.2%，控制题=91.88%。
+- 对 `chunk_index=0` 增加低/高权重 header lane 后，Semantic Top-30 降至 36.0%，控制题降至 86.38%/85.22%；qst_0247 仍未进入 header dense/BM25 top-500。
+- 结论：简单提升首 chunk 权重不可泛化，已否决；文档级聚合方向保留，但需要独立的 document-profile（标题/摘要/主题）表示，再命中文档后展开事实 chunks。S2 暂不进入 RAG smoke。详见 `docs/S2_DOCUMENT_LEVEL_HEADER_20260901.md`。
+
 ### O4：文档/分面软融合 smoke
 
 - **前置**：仅在 O1/O2 证明候选已进入池后执行。
