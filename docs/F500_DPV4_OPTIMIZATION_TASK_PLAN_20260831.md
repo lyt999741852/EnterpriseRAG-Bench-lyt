@@ -80,6 +80,14 @@
 - 结论：扩大 pre-rerank 召回窗口有效，但必须保持 rerank 输入 120。下一步实现“BM25/dense 各 top-500 + 前段 120 不变 + 尾部 append-only reserve（每文档 chunk cap）”并在同一 20 题复测 raw/pre-rerank 与控制题，再决定是否评分。
 - 详细结果见 `docs/O3_8_TOPK_SWEEP_WIDE_RERANK_20260901.md`。
 
+#### O3.9：Metadata/BM25 增强与 top-500 候选测试计划（2026-09-01）
+
+- 先做只读 metadata 来源审计，再建立版本化 BGE shadow index，补充 `title/file_path/section_context/lexical_context`；第一阶段不重算向量、不切换生产 alias。
+- 在同一 46 个 raw-miss 上复测 metadata-enhanced BM25，并保持原题 dense/BM25 各 top-500；候选采用前段 120 保持 + 尾部 append-only reserve，每文档 chunk cap，rerank 输入固定 120。
+- 20 题 RAG smoke 仅在 metadata 覆盖、bulk 无失败、top-500 候选覆盖复现 O3.8 且无前段回退后执行；检查 raw/pre-rerank、最终 admission、no-correction 指标和控制题。
+- 通过门槛：gold metadata 覆盖 100%、全库字段覆盖率 ≥99%、top-500 union 至少 15/46 raw-miss 候选覆盖、rerank 无超时、控制题 correctness 不下降、同题 combined 不低于基线。
+- 失败时保留诊断并回退 shadow，不进入 AB50/F500；详细步骤见 `docs/O3_9_METADATA_BM25_TOP500_PLAN_20260901.md`。
+
 ### O4：文档/分面软融合 smoke
 
 - **前置**：仅在 O1/O2 证明候选已进入池后执行。
