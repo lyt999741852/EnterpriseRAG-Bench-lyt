@@ -103,6 +103,13 @@
 - 对 `chunk_index=0` 增加低/高权重 header lane 后，Semantic Top-30 降至 36.0%，控制题降至 86.38%/85.22%；qst_0247 仍未进入 header dense/BM25 top-500。
 - 结论：简单提升首 chunk 权重不可泛化，已否决；文档级聚合方向保留，但需要独立的 document-profile（标题/摘要/主题）表示，再命中文档后展开事实 chunks。S2 暂不进入 RAG smoke。详见 `docs/S2_DOCUMENT_LEVEL_HEADER_20260901.md`。
 
+#### S2.1：document-profile shadow index 与 chunk expansion（2026-09-01）
+
+- 从 `o391_bge_meta_bm25_20260901` 的 `chunk_index=0` 建立 `o392_bge_doc_profile_20260901`，得到 511,961 个 profile 文档；复用既有 BGE-small 向量，reindex 无 failure/version conflict。
+- profile dense/BM25 top-100 → 文档 RRF top-100 → 前 50 文档回查 source chunks。Expansion 按 profile 排名保序，未改变文档候选顺序。
+- Semantic 125 的 profile RRF Top-30=34.4%，低于 S2 原始 chunk 聚合 47.2%；控制题 Top-30=80.00%，低于 91.88%。qst_0247 仍未进入 profile top-100。
+- 结论：chunk expansion 作为保序机制可保留，但 chunk-0 复制并非真正 document profile，未通过跨题型增益/控制题无回退门槛；不进入 RAG smoke 或主链。后续若继续，应构建多 chunk 压缩/摘要 profile 或 max/sum-top-n 文档聚合，并维持原始 dense/BM25 托底。详见 `docs/S21_DOCUMENT_PROFILE_EXPANSION_20260901.md`。
+
 ### O4：文档/分面软融合 smoke
 
 - **前置**：仅在 O1/O2 证明候选已进入池后执行。
