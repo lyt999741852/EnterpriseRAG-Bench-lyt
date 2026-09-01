@@ -73,6 +73,13 @@
 - 结论：保留“原题两路前段 + 附加视图 append-only + 条件触发”的设计原则，不直接合入主链。下一步扩大 dense/BM25 召回窗口并做 46 题 + 控制题的 pre-rerank smoke，再决定是否进入 RAG 小样本。
 - 详细结果见 `docs/O3_7_UNION_MULTIVIEW_ADMISSION_REPLAY_20260901.md`。
 
+#### O3.8：top-240/500 扫描与 wide-rerank smoke 已完成（2026-09-01）
+
+- 当前 BGE-small 生产索引只读扫描：46 个有效 raw-miss 的原题 dense∪BM25 命中为 @120 0%、@240 17.39%（8/46）、@500 32.61%（15/46）。470 道有效题并集命中为 @120 88.51%、@240 91.28%、@500 93.19%；Semantic 125 题为 68.00%→75.20%→80.80%。
+- 20 题 `candidate_k=500 + reranker candidate_k=240` smoke 在 rerank 服务超时退出，仅完成 2/20，无评分文件；确认直接扩大 rerank 输入不可行，未进入主链。
+- 结论：扩大 pre-rerank 召回窗口有效，但必须保持 rerank 输入 120。下一步实现“BM25/dense 各 top-500 + 前段 120 不变 + 尾部 append-only reserve（每文档 chunk cap）”并在同一 20 题复测 raw/pre-rerank 与控制题，再决定是否评分。
+- 详细结果见 `docs/O3_8_TOPK_SWEEP_WIDE_RERANK_20260901.md`。
+
 ### O4：文档/分面软融合 smoke
 
 - **前置**：仅在 O1/O2 证明候选已进入池后执行。
