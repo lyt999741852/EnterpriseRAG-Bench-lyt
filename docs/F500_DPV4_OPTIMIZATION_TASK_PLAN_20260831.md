@@ -82,6 +82,8 @@
 
 #### O3.9：Metadata/BM25 增强与 top-500 候选测试计划（2026-09-01）
 
+状态已更新为“审计与 shadow 对照完成，smoke 待 rerank 服务稳定后重跑”：BGE/Conan manifest gold 覆盖 100%，生产索引 metadata 字段实际覆盖 0%；版本化 BGE shadow `o391_bge_meta_bm25_20260901` 已完成 928,534 条回填且无 bulk failure。shadow text-only 复现 O3.8 raw-miss union @500=32.61%（15/46）；metadata 单路 bool_should 仅到 34.78%（16/46）但控制题 union @500 降至 88.51%，append union 无增益，因此 metadata 暂不改变主 BM25 排序。临时 append-only reserve（rerank 固定 120）已应用/回滚，两次 20 题 smoke 因 rerank broken pipe/connection reset 未形成完整产物，未申请 AB50。详见 `docs/O3_9_METADATA_BM25_SHADOW_20260901.md`。
+
 - 先做只读 metadata 来源审计，再建立版本化 BGE shadow index，补充 `title/file_path/section_context/lexical_context`；第一阶段不重算向量、不切换生产 alias。
 - 在同一 46 个 raw-miss 上复测 metadata-enhanced BM25，并保持原题 dense/BM25 各 top-500；候选采用前段 120 保持 + 尾部 append-only reserve，每文档 chunk cap，rerank 输入固定 120。
 - 20 题 RAG smoke 仅在 metadata 覆盖、bulk 无失败、top-500 候选覆盖复现 O3.8 且无前段回退后执行；检查 raw/pre-rerank、最终 admission、no-correction 指标和控制题。

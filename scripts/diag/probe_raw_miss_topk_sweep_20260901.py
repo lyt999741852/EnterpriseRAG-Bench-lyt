@@ -103,6 +103,8 @@ def main() -> int:
     parser.add_argument("--es", default="http://127.0.0.1:9200")
     parser.add_argument("--index", default="enterprise-rag-bge-small-v1")
     parser.add_argument("--model", default="BAAI/bge-small-en-v1.5")
+    parser.add_argument("--metadata-fields", action="store_true", help="search shadow metadata fields in addition to text")
+    parser.add_argument("--metadata-mode", choices=("best_fields", "bool_should", "append_union"), default="best_fields", help="metadata query composition when --metadata-fields is set")
     parser.add_argument("--workers", type=int, default=8)
     args = parser.parse_args()
 
@@ -147,9 +149,20 @@ def main() -> int:
             },
             "_source": ["doc_id", "chunk_id"],
         }
+        bm25_query = {"match": {"text": {"query": question, "operator": "or"}}}
+        if args.metadata_fields and args.metadata_mode != "append_union":
+            if args.metadata_mode == "bool_should":
+                bm25_query = {"bool": {"should": [
+                    {"match": {"text": {"query": question, "operator": "or"}}},
+                    {"match": {"lexical_context": {"query": question, "operator": "or", "boost": 0.35}}},
+                    {"match": {"title": {"query": question, "operator": "or", "boost": 1.5}}},
+                    {"match": {"file_path": {"query": question, "operator": "or", "boost": 0.5}}},
+                ], "minimum_should_match": 1}}
+            else:
+                bm25_query = {"multi_match": {"query": question, "fields": ["text", "lexical_context^2", "title^2", "file_path"], "type": "best_fields", "operator": "or"}}
         bm25_body = {
             "size": max(cutoffs),
-            "query": {"match": {"text": {"query": question, "operator": "or"}}},
+            "query": bm25_query,
             "_source": ["doc_id", "chunk_id"],
         }
         started = time.perf_counter()
@@ -157,6 +170,15 @@ def main() -> int:
         dense_ms = round((time.perf_counter() - started) * 1000, 2)
         started = time.perf_counter()
         bm25_hits = call_json(f"{args.es.rstrip('/')}/{args.index}/_search", bm25_body).get("hits", {}).get("hits", [])
+        if args.metadata_fields and args.metadata_mode == "append_union":
+            metadata_body = {
+                "size": max(cutoffs),
+                "query": {"multi_match": {"query": question, "fields": ["lexical_context^2", "title^2", "file_path"], "type": "best_fields", "operator": "or"}},
+                "_source": ["doc_id", "chunk_id"],
+            }
+            metadata_hits = call_json(f"{args.es.rstrip('/')}/{args.index}/_search", metadata_body).get("hits", {}).get("hits", [])
+            seen = {hit.get("_id") for hit in bm25_hits}
+            bm25_hits.extend(hit for hit in metadata_hits if hit.get("_id") not in seen and not seen.add(hit.get("_id")))
         bm25_ms = round((time.perf_counter() - started) * 1000, 2)
         dense = [source_doc(hit) for hit in dense_hits]
         bm25 = [source_doc(hit) for hit in bm25_hits]
