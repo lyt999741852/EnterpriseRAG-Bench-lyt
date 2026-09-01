@@ -64,6 +64,15 @@
 - 结论：不直接按 B 方案重建全量索引；索引完整性不是主因。后续优先做通用查询表示与 dense+BM25 append-only 候选托底，并复核 admission/最终证据保留。
 - 详细结果见 `docs/INDEX_QUALITY_AB_RECALL_20260901.md`。
 
+#### O3.7：原题并集、多视图追加与 admission 托底回放已完成（2026-09-01）
+
+- 固定回放 46 个有效 raw-miss：生产 top-120 的原题 BM25+dense、原题 append-only 并集（扩至 240）和已有多视图追加（扩至 360）均为 0% gold 命中；`final_before_generation` 为 3/46，追加 8 个 admission reserve 后仍为 3/46。
+- 470 道有效题控制回放：原题 base @120 为 86.81%，append-only 并集 @240 为 88.51%；低一致触发多视图 @360 为 89.57%，始终追加上界为 89.79%。相同 @120 不变，说明 append-only 不破坏原始前段候选。
+- Semantic 125 题：base @120 64.00%，原题并集 @240 68.00%，条件多视图 @360 69.60%；这只是候选容量/覆盖上界，不等价于 correctness 提升。
+- admission reserve 在 470 题上将 final-before-generation 命中从 73.62% 提到 80.00%，但对 raw-miss 无恢复；候选保留是独立损失层，不能替代召回源。
+- 结论：保留“原题两路前段 + 附加视图 append-only + 条件触发”的设计原则，不直接合入主链。下一步扩大 dense/BM25 召回窗口并做 46 题 + 控制题的 pre-rerank smoke，再决定是否进入 RAG 小样本。
+- 详细结果见 `docs/O3_7_UNION_MULTIVIEW_ADMISSION_REPLAY_20260901.md`。
+
 ### O4：文档/分面软融合 smoke
 
 - **前置**：仅在 O1/O2 证明候选已进入池后执行。
