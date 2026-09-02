@@ -116,6 +116,13 @@
 - correctness=64.00%、completeness=67.63%、combined=58.88、document recall=64.49%，相对上一轮 DPV4 基线分别 +1.20、+3.38、+1.87、+4.20 个百分点；无效额外文档 0.34。
 - 结论：通过当前 F500 放行门槛，可作为新的候选主配置；Semantic correctness=46.40%、recall=45.60% 仍未解决，后续继续做通用 raw-miss 检索优化。详见 `docs/F500_BGE_DPV4_O4P3_20260902.md`。
 
+#### S3：无 PageIndex 固定四路混合检索与覆盖反思（计划，2026-09-02）
+
+- 取消题型路由和 PageIndex 主链依赖；所有题固定执行原题、词法、语义、分面/答案意图四路 BM25+dense，RRF 后 rerank 固定 120，原题前段不可删除。
+- 初次答案前增加结构化 coverage checker，只检查问题 facet 与 chunk 覆盖，不回答问题；针对缺失 facet 追加检索，最多 3 轮，append-only、固定候选/上下文预算。
+- 先做 S3.0 静态对照，再做 S3.1 单轮 20 题 smoke，最后才做 S3.2 三轮 AB50/F500；每阶段记录 recall、coverage 恢复、调用次数、延迟和控制题回退。
+- 放行线以当前 O4.P3 F500 为基准：combined≥58.88、correctness≥64.00%，且 Semantic/Project/Completeness 有净收益、控制题无回退。详细方案见 `docs/S3_NO_PAGEINDEX_AGENTIC_HYBRID_PLAN_20260902.md`。
+
 ### O4：文档/分面软融合 smoke
 
 - **前置**：仅在 O1/O2 证明候选已进入池后执行。
