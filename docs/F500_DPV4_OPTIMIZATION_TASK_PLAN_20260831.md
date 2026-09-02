@@ -110,6 +110,12 @@
 - Semantic 125 的 profile RRF Top-30=34.4%，低于 S2 原始 chunk 聚合 47.2%；控制题 Top-30=80.00%，低于 91.88%。qst_0247 仍未进入 profile top-100。
 - 结论：chunk expansion 作为保序机制可保留，但 chunk-0 复制并非真正 document profile，未通过跨题型增益/控制题无回退门槛；不进入 RAG smoke 或主链。后续若继续，应构建多 chunk 压缩/摘要 profile 或 max/sum-top-n 文档聚合，并维持原始 dense/BM25 托底。详见 `docs/S21_DOCUMENT_PROFILE_EXPANSION_20260901.md`。
 
+#### F500 O4.P3 bounded fail-open 全量复测（2026-09-02）
+
+- 在 BGE-small + DPV4 固定链路上，仅启用 O4.P3 已验证的 bounded fail-open evidence admission（candidate 30、max 10、前 2 个锚点、解析失败回退 4），完成 500/500 生成与官方 `no-correction` 评分。
+- correctness=64.00%、completeness=67.63%、combined=58.88、document recall=64.49%，相对上一轮 DPV4 基线分别 +1.20、+3.38、+1.87、+4.20 个百分点；无效额外文档 0.34。
+- 结论：通过当前 F500 放行门槛，可作为新的候选主配置；Semantic correctness=46.40%、recall=45.60% 仍未解决，后续继续做通用 raw-miss 检索优化。详见 `docs/F500_BGE_DPV4_O4P3_20260902.md`。
+
 ### O4：文档/分面软融合 smoke
 
 - **前置**：仅在 O1/O2 证明候选已进入池后执行。
