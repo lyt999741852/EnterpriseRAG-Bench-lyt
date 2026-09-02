@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT=/opt/enterprise-rag-bench
+APP="$ROOT/app"
+RUN="$APP/outputs/bge_semantic12_answer_schema_quota_20260813"
+CONFIG="$APP/configs/eval_bge_semantic12_answer_schema_quota_20260813.yaml"
+PYTHON=/root/anaconda3/envs/embedding_test/bin/python
+
+: "${LARK_API_KEY:?LARK_API_KEY must be set}"
+: "${EMBEDDING_API_KEY:?EMBEDDING_API_KEY must be set}"
+
+mkdir -p "$RUN"
+export PYTHONPATH="$APP:$ROOT/venv/lib/python3.10/site-packages"
+export HF_HOME="$ROOT/model_cache"
+export QUESTION_PARALLELISM=1
+export TOKENIZERS_PARALLELISM=false
+cd "$APP"
+
+if [ -f "$RUN/run.pid" ] && kill -0 "$(cat "$RUN/run.pid")" 2>/dev/null; then
+  echo "ALREADY_RUNNING pid=$(cat "$RUN/run.pid")"
+  exit 0
+fi
+
+if [ -s "$RUN/pipeline.log" ]; then
+  mv "$RUN/pipeline.log" "$RUN/pipeline.interrupted_cache_scan.log"
+fi
+
+setsid nohup "$PYTHON" -u -m src.pipeline "$CONFIG" \
+  > "$RUN/pipeline.log" 2>&1 < /dev/null &
+echo $! > "$RUN/run.pid"
+echo "STARTED pid=$(cat "$RUN/run.pid") run=$RUN"

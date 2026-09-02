@@ -76,3 +76,9 @@ python -m src.benchmark_embedding `
 - 最终 500 题生成、正式评分和排行榜提交。
 
 `questions.jsonl` 中除 `question` 外的 gold 字段只用于离线统计与评估，不能传入检索器或生成器。
+
+## 项目文档与交接
+
+当前项目入口、实验时间线、优化路线和项目移交清单见
+[`docs/README.md`](docs/README.md)。历史交接与已过期计划保留在
+[`docs/archive/`](docs/archive/)；其中受限历史材料仅供本地审计，不纳入移交包。

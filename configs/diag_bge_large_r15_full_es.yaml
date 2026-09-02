@@ -1,0 +1,35 @@
+# R15: full-corpus BGE-large index with 448-token chunks and 32-token overlap.
+# Elasticsearch target is a new versioned index; existing indices are untouched.
+corpus_dir: "corpus/all_documents"
+questions_file: "questions.jsonl"
+output_dir: "outputs"
+index_dir: ".index_cache/full_es_bge_large_en_v1_448_32"
+index_backend: "elasticsearch"
+
+chunking:
+  method: "fixed"
+  version: "fixed-v2"
+  manifest_enabled: true
+  chunk_size: 448
+  chunk_overlap: 32
+
+embedding:
+  provider: "sentence_transformers"
+  model_name: "/data06/embedding-models/bge-large-en-v1.5"
+  device: "cpu"
+  batch_size: 128
+  dimension: 1024
+
+elasticsearch:
+  url: "http://10.72.55.201:31920"
+  index_name: "enterprise-rag-bge-large-en-v1-448-32"
+  alias_name: "enterprise-rag-bge-large-en-v1-448-32-alias"
+  bulk_size: 512
+  request_timeout: 300
+  shards: 8
+  dense_mode: "script_score"
+
+pipeline:
+  name: "diag_bge_large_r15_full_es"
+  overwrite_index: false
+  max_index_chunks: null

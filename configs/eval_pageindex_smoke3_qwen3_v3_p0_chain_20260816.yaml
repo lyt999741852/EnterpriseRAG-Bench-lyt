@@ -1,0 +1,145 @@
+# V3 vector-database smoke test. The strict P0 RAG chain is unchanged;
+# only the Conan448/1792-d/ES-v3 data layer is substituted.
+corpus_dir: "corpus/all_documents"
+questions_file: "questions.jsonl"
+output_dir: "outputs"
+index_dir: ".index_cache/full_es_qwen3_emb_v3_conan448"
+index_backend: "elasticsearch"
+
+chunking:
+  method: "langchain_conan_recursive"
+  version: "langchain-conan-v1-448-32"
+  manifest_enabled: true
+  chunk_size: 448
+  chunk_overlap: 32
+  tokenizer_api_base: "http://10.72.55.209:7993/v1"
+  tokenizer_model_name: "embedding"
+  tokenizer_api_key_env: "EMBEDDING_API_KEY"
+  tokenizer_timeout: 60
+  tokenizer_local_dir: ".index_cache/conan_tokenizer"
+
+embedding:
+  provider: "openai_compatible"
+  model_name: "embedding"
+  api_base: "http://10.72.55.209:7993/v1"
+  api_key_env: "EMBEDDING_API_KEY"
+  device: "cpu"
+  batch_size: 128
+  dimension: 1792
+
+elasticsearch:
+  url: "http://10.72.100.29:31920"
+  index_name: "enterprise-rag-qwen3-emb-v3-conan448"
+  alias_name: "enterprise-rag-qwen3-emb-v3"
+  bulk_size: 2048
+  request_timeout: 300
+  shards: 16
+  dense_mode: "script_score"
+  embedding_concurrency: 8
+  embedding_group_size: 128
+  embedding_request_batch_size: 128
+
+llm:
+  provider: "openai_compatible"
+  api_base: "http://10.72.100.35:7777/v1"
+  api_key_env: "LARK_API_KEY"
+  model_name: "lark"
+  temperature: 0.0
+  max_tokens: 8192
+  timeout: 180
+  retry_attempts: 3
+  retry_backoff_seconds: 1.0
+  extra_body:
+    chat_template_kwargs:
+      enable_thinking: false
+
+retrieval:
+  method: "hybrid"
+  top_k: 30
+  candidate_k: 240
+  fusion_method: "rrf"
+  rrf_k: 60
+  dense_weight: 0.3
+  collapse_recursive_partitions: true
+  query_rewrite:
+    enabled: true
+    types: ["semantic", "project_related", "completeness"]
+    max_queries: 2
+  answer_intent:
+    enabled: true
+    types: ["semantic", "project_related", "completeness"]
+    max_queries: 2
+  multi_view:
+    enabled: true
+    default_views: ["original_keyword", "original_dense"]
+    weights:
+      original_keyword: 1.2
+      original_dense: 1.0
+      rewritten_dense: 0.9
+      answer_intent_dense: 0.4
+    routes:
+      semantic: ["original_keyword", "original_dense", "rewritten_dense", "answer_intent_dense"]
+      project_related: ["original_keyword", "original_dense", "rewritten_dense", "answer_intent_dense"]
+      completeness: ["original_keyword", "original_dense", "answer_intent_dense"]
+  reranker:
+    enabled: true
+    model_name: "rerank"
+    api_base: "http://10.72.55.209:7992/v1"
+    api_key_env: "EMBEDDING_API_KEY"
+    candidate_k: 120
+    top_n: 30
+    timeout: 120
+  parent_expansion:
+    enabled: false
+
+generation:
+  max_context_chunks: 10
+  max_chunks_per_doc: 4
+  max_document_ids: 10
+  evidence_selection_enabled: true
+  evidence_selection_mode: "precision_v3"
+  evidence_selection_candidate_chunks: 24
+  evidence_selection_max_chunks: 10
+  evidence_selection_anchor_chunks: 0
+  evidence_selection_fallback_chunks: 0
+  evidence_selection_fail_closed: true
+  fact_verification_enabled: true
+  final_answer_audit_enabled: true
+
+pageindex:
+  enabled: true
+  home: "/opt/enterprise-rag-bench/PageIndex"
+  manifest_path: ".index_cache/full_es_qwen3_emb_v3_conan448/manifest.sqlite3"
+  cache_dir: ".pageindex_cache/smoke3_qwen3_v3_p0_chain_20260816"
+  min_words: 350
+  min_headings: 2
+  max_candidate_documents: 24
+  max_nodes_per_document: 40
+  node_preview_chars: 800
+  max_followup_queries: 4
+  max_hops: 2
+  require_node_audit: true
+  fallback_to_es_on_incomplete: true
+  max_partial_full_document_chars: 18000
+  semantic_event_full_max_chars: 40000
+
+evaluation:
+  enabled: false
+
+pipeline:
+  name: "pageindex_smoke3_qwen3_v3_p0_chain_20260816"
+  question_only: true
+  question_router:
+    enabled: true
+  source_filter: []
+  source_filter_mode: "exact"
+  question_ids:
+    - "qst_0013"  # basic
+    - "qst_0298"  # semantic
+    - "qst_0416"  # conflicting_info
+  overwrite_index: false
+  read_existing_index: true
+  resume: true
+  resume_legacy: false
+  checkpoint_interval: 1
+  question_parallelism: 3

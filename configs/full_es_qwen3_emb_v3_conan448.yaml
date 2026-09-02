@@ -1,0 +1,84 @@
+# Conan-token-aware v3 vector build.
+# Chunk length and overlap are measured by the exact serving tokenizer via
+# Conan vLLM's /tokenize endpoint, not whitespace words or BGE's tokenizer.
+corpus_dir: "corpus/all_documents"
+questions_file: "questions.jsonl"
+output_dir: "outputs"
+index_dir: ".index_cache/full_es_qwen3_emb_v3_conan448"
+index_backend: "elasticsearch"
+
+chunking:
+  method: "langchain_conan_recursive"
+  version: "langchain-conan-v1-448-32"
+  manifest_enabled: true
+  chunk_size: 448
+  chunk_overlap: 32
+  tokenizer_api_base: "http://10.72.55.209:7993/v1"
+  tokenizer_model_name: "embedding"
+  tokenizer_api_key_env: "EMBEDDING_API_KEY"
+  tokenizer_timeout: 60
+  tokenizer_local_dir: ".index_cache/conan_tokenizer"
+
+embedding:
+  provider: "openai_compatible"
+  model_name: "embedding"
+  api_base: "http://10.72.55.209:7993/v1"
+  api_key_env: "EMBEDDING_API_KEY"
+  device: "cpu"
+  batch_size: 512
+  dimension: 1792
+
+elasticsearch:
+  url: "http://10.72.100.29:31920"
+  index_name: "enterprise-rag-qwen3-emb-v3-conan448"
+  alias_name: "enterprise-rag-qwen3-emb-v3"
+  bulk_size: 2048
+  request_timeout: 180
+  shards: 16
+  dense_mode: "script_score"
+  embedding_concurrency: 8
+  embedding_group_size: 128
+  embedding_request_batch_size: 512
+
+llm:
+  provider: "openai_compatible"
+  api_base: "http://10.72.100.35:7777/v1"
+  api_key_env: "LARK_API_KEY"
+  model_name: "lark"
+  temperature: 0.0
+  max_tokens: 4096
+  timeout: 180
+  retry_attempts: 3
+  retry_backoff_seconds: 1.0
+  extra_body:
+    chat_template_kwargs:
+      enable_thinking: false
+
+retrieval:
+  method: "hybrid"
+  top_k: 30
+  candidate_k: 240
+  fusion_method: "rrf"
+  rrf_k: 60
+  dense_weight: 0.3
+  reranker:
+    enabled: false
+  parent_expansion:
+    enabled: false
+
+generation:
+  max_context_chunks: 10
+  max_chunks_per_doc: 4
+  max_document_ids: 10
+
+evaluation:
+  enabled: false
+
+pipeline:
+  name: "full_es_qwen3_emb_v3_conan448"
+  source_filter: []
+  source_filter_mode: "exact"
+  overwrite_index: false
+  resume: true
+  resume_legacy: false
+  checkpoint_interval: 1

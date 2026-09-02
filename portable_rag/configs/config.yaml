@@ -1,0 +1,77 @@
+# Portable RAG configuration.
+# Relative paths are resolved from portable_rag/.
+
+corpus_dir: data/corpus
+questions_file: data/questions.jsonl
+index_dir: data/index_cache
+output_dir: outputs
+
+pipeline:
+  name: portable_run
+  mode: all                 # index | qa | all
+  overwrite_index: false
+  resume: true
+  question_limit: 0         # 0 = all questions
+  source_filter: []
+  source_filter_mode: exact
+
+chunking:
+  method: fixed              # fixed | hierarchical | langchain_conan_recursive
+  version: portable-fixed-v1
+  chunk_size: 512            # whitespace-token window for fixed
+  chunk_overlap: 64
+  manifest_enabled: true
+  # Only needed by langchain_conan_recursive:
+  tokenizer_api_base: ""
+  tokenizer_model_name: ""
+  tokenizer_api_key_env: ""
+  tokenizer_local_dir: ""
+
+# BM25 needs no embedding API. Change retrieval.method to dense/hybrid to use it.
+embedding:
+  provider: openai_compatible # openai_compatible | ollama | sentence_transformers | fastembed
+  model_name: your-embedding-model
+  api_base: https://your-embedding-provider.example/v1
+  api_key_env: EMBEDDING_API_KEY
+  batch_size: 16
+  dimension: 0
+  query_prefix: ""
+  document_prefix: ""
+  device: cpu
+
+retrieval:
+  method: bm25               # bm25 | dense | hybrid
+  top_k: 8
+  candidate_k: 64
+  rrf_k: 60
+  dense_weight: 0.5
+  fusion_method: rrf        # rrf | linear
+  reranker:
+    enabled: false
+    model_name: cross-encoder/ms-marco-MiniLM-L-6-v2
+    top_n: 8
+
+llm:
+  provider: openai_compatible
+  api_base: https://your-llm-provider.example/v1
+  api_key_env: LLM_API_KEY
+  model_name: your-chat-model
+  temperature: 0.0
+  max_tokens: 1024
+  timeout: 120
+  retry_attempts: 3
+  retry_backoff_seconds: 1.0
+  # Optional provider-specific fields, e.g. enable_thinking: false.
+  extra_body: {}
+
+generation:
+  max_context_chunks: 5
+  max_chunks_per_doc: 2
+  max_document_ids: 10
+  evidence_selection_enabled: false
+  evidence_selection_candidate_chunks: 10
+  evidence_selection_max_chunks: 4
+  evidence_selection_mode: legacy
+  evidence_selection_fail_closed: false
+  fact_verification_enabled: false
+  final_answer_audit_enabled: false

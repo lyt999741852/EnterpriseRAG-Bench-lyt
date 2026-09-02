@@ -1,0 +1,11 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+outputs/
+.index_cache/
+.pageindex_cache/
+corpus/
+vendor/
+questions.jsonl
+.env
+*.key
