@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT=/opt/enterprise-rag-bench/app/conan_rag
+ROOT=/opt/enterprise-rag-bench/app/experiments/conan_rag
 RUN=conan_current_replay100_20260820
 PID_FILE="$ROOT/outputs/$RUN/queue.pid"
 

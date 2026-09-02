@@ -6,4 +6,4 @@ done
 echo '--- local BGE snapshots ---'
 find /opt/enterprise-rag-bench/model_cache/hub/models--BAAI--bge-small-en-v1.5/snapshots -mindepth 1 -maxdepth 1 -type d -print 2>/dev/null
 echo '--- cached model names in configs ---'
-grep -RInE 'embedding.*model|model_name:.*(bge|e5|gte|jina|nomic|sentosa)' /opt/enterprise-rag-bench/app/configs /opt/enterprise-rag-bench/app/conan_rag/configs 2>/dev/null | head -120
+grep -RInE 'embedding.*model|model_name:.*(bge|e5|gte|jina|nomic|sentosa)' /opt/enterprise-rag-bench/app/configs /opt/enterprise-rag-bench/app/experiments/conan_rag/configs 2>/dev/null | head -120

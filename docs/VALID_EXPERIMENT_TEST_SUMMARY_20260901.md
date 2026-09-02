@@ -237,7 +237,7 @@ High-level 和 Info-not-found 通常不配置 `expected_doc_ids`；其 `document
 
 ## 9. 原始材料与可追溯配置
 
-- [历史总台账](archive/ledgers/RAG_TEST_RECORD_THROUGH_20260812.md) 与 [优化追溯](../OPTIMIZATION_TRACE.md)
+- [历史总台账](archive/ledgers/RAG_TEST_RECORD_THROUGH_20260812.md) 与 [优化追溯](archive/ledgers/OPTIMIZATION_TRACE.md)
 - [A3.5 AB50](SEMANTIC_A3_5_GENERATION_CONFLICT_GUARD_AB50_20260826.md)
 - [DPV4/BGE 50 题](DPV4_LLM_SWAP_BGE50_20260828.md) 与 [Conan448 对照](CONAN448_DPV4_BGE50_20260828.md)
 - [O4.P3 AB50](O4P3_BALANCED50_NO_CORRECTION_20260831.md)、[O4.P3.4 双 judge](O4P34_CONFLICT_AB50_DUAL_JUDGE_20260831.md)

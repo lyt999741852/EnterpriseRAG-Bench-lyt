@@ -6,7 +6,7 @@
 > 仅作为 Qwen3 测试过程和参数记录保留。
 
 > 日期：2026-08-12（Asia/Shanghai）  
-> 新会话入口：先读本文件，再读 `../ledgers/RAG_TEST_RECORD_THROUGH_20260812.md`；历史细节见根目录 `OPTIMIZATION_TRACE.md`。
+> 新会话入口：先读本文件，再读 `../ledgers/RAG_TEST_RECORD_THROUGH_20260812.md`；历史细节见 `../ledgers/OPTIMIZATION_TRACE.md`。
 
 ## 1. 当前决策
 
@@ -108,7 +108,7 @@
 - 当前入口：`CURRENT_STATUS.md`
 - 测试总记录：`docs/archive/ledgers/RAG_TEST_RECORD_THROUGH_20260812.md`
 - 本交接：`docs/archive/handoffs/NEXT_TEST_HANDOFF_20260812.md`
-- 历史全追溯：`OPTIMIZATION_TRACE.md`
+- 历史全追溯：`docs/archive/ledgers/OPTIMIZATION_TRACE.md`
 - 原向量重构交接：`docs/archive/VECTOR_REBUILD_HANDOFF.md`（部分规模/状态已过时，以本文件为准）
 - 新库推荐配置：`configs/eval_pageindex_balanced50_q3emb.yaml`
 - 新库构建配置：`configs/full_es_qwen3_emb.yaml`

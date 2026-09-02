@@ -1,7 +1,7 @@
 # 向量库重构任务交接文档
 
 > 生成日期：2026-08-06
-> 用途：新会话执行向量库重构任务的唯一入口。完整实验历史见 `OPTIMIZATION_TRACE.md`，基础设施说明见 `INFRA_RESOURCES_GUIDE.md`。
+> 用途：新会话执行向量库重构任务的唯一入口。完整实验历史见 `docs/archive/ledgers/OPTIMIZATION_TRACE.md`，基础设施说明见 `docs/INFRA_RESOURCES_GUIDE.md`。
 > 背景：RAG 框架已定（ES + PageIndex + 证据选择 + Qwen 生成），多轮测试完成，当前唯一主线任务是**向量库重构**（切块 + 向量化 + 入库 + 检索适配）。
 
 ---

@@ -82,3 +82,18 @@ python -m src.benchmark_embedding `
 当前项目入口、实验时间线、优化路线和项目移交清单见
 [`docs/README.md`](docs/README.md)。历史交接与已过期计划保留在
 [`docs/archive/`](docs/archive/)；其中受限历史材料仅供本地审计，不纳入移交包。
+
+## 目录结构
+
+```text
+src/                         主 RAG 实现
+tests/                       自动化测试
+configs/                     可复现实验配置与快照
+scripts/                     本地、诊断与远程实验脚本
+docs/                        当前说明、实验报告与历史归档
+deploy/                      部署文件
+experiments/conan_rag/       隔离的 Conan 研究快照
+packages/bge500_rag_pageindex_core/  BGE500 精简代码包
+packages/portable_rag/       通用轻量 RAG 示例
+rag-debug-console/           独立调试控制台
+```

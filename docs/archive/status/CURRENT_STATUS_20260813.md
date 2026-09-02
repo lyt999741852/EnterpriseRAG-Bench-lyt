@@ -13,7 +13,7 @@ BGE，因此不再作为当前主线；其配置、缓存、评测结论和构�
 1. `CURRENT_STATUS.md`：当前决策和下一步；
 2. `docs/PROJECT_STRUCTURE_AND_RAG_CODE_MAP_20260813.md`：目录、核心代码和切块实现；
 3. `docs/archive/ledgers/RAG_TEST_RECORD_THROUGH_20260812.md`：统一测试台账（已续记至 2026-08-13）；
-4. `OPTIMIZATION_TRACE.md`：早期完整实验细节；
+4. `docs/archive/ledgers/OPTIMIZATION_TRACE.md`：早期完整实验细节；
 5. `docs/backups/BGE_RAG_ROLLBACK_SNAPSHOT_20260812.md`：BGE 回退保护点；
 6. `docs/archive/`：历史报告、过时交接和向量重建记录。
 

@@ -24,5 +24,5 @@
 ## 原始台账
 
 - [有效实验测试汇总](VALID_EXPERIMENT_TEST_SUMMARY_20260901.md)：汇报级整合记录。
-- [优化追溯原始台账](../OPTIMIZATION_TRACE.md)：历史流水记录，供追溯，不是当前计划入口。
+- [优化追溯原始台账](archive/ledgers/OPTIMIZATION_TRACE.md)：历史流水记录，供追溯，不是当前计划入口。
 - [历史测试总记录（截至 2026-08-12）](archive/ledgers/RAG_TEST_RECORD_THROUGH_20260812.md)：早期记录。

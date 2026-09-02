@@ -2,7 +2,7 @@
 set -euo pipefail
 
 APP=/opt/enterprise-rag-bench/app
-ROOT="$APP/conan_rag"
+ROOT="$APP/experiments/conan_rag"
 CONFIG=configs/eval_conan_current_replay100_20260820.yaml
 RUN=conan_current_replay100_20260820
 BLOCKER=erag-pageindex-ab50-20260820-r3.service

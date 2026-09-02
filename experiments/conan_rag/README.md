@@ -18,7 +18,7 @@
 在本目录创建虚拟环境并安装依赖：
 
 ```powershell
-cd D:\EnterpriseRAG-Bench\conan_rag
+cd D:\EnterpriseRAG-Bench\experiments\conan_rag
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
@@ -49,4 +49,4 @@ Linux/macOS 可运行 `bash scripts/run_conan.sh`。
 
 ## 迁移到其他电脑
 
-复制整个 `conan_rag/`。如果同时复制语料、问题集和本地 manifest，请按新位置修改配置中的 `corpus_dir`、`questions_file`、`index_dir` 和 `pageindex.manifest_path`；如果连接远程 ES，只需保证 Conan 索引名存在。API 密钥只通过环境变量提供。
+复制整个 `experiments/conan_rag/`。如果同时复制语料、问题集和本地 manifest，请按新位置修改配置中的 `corpus_dir`、`questions_file`、`index_dir` 和 `pageindex.manifest_path`；如果连接远程 ES，只需保证 Conan 索引名存在。API 密钥只通过环境变量提供。
