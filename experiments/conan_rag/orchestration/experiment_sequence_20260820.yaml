@@ -1,0 +1,54 @@
+status: "prepared_not_started"
+blocker:
+  type: "systemd_unit"
+  name: "erag-pageindex-ab50-20260820-r3.service"
+  require_inactive_before_start: true
+  require_no_child_processes: true
+  cooldown_seconds: 120
+
+credentials:
+  mode: "ephemeral_environment_handoff"
+  allowed_variables:
+    - "LARK_API_KEY"
+    - "EMBEDDING_API_KEY"
+  source: "authorized_active_bge_child_process_at_launch_time"
+  persist_to_config: false
+  persist_to_script: false
+  persist_to_log: false
+
+compliance:
+  generation_input: "question_text_only"
+  question_only: true
+  question_router_enabled: true
+  expose_question_type: false
+  expose_gold_answer: false
+  expose_answer_facts: false
+  expose_expected_doc_ids: false
+  read_existing_index: true
+  overwrite_index: false
+  official_evaluator: "src.scripts.answer_evaluation.metrics_based_eval"
+  correction_mode: "no-correction"
+  expected_answer_fields:
+    - "question_id"
+    - "answer"
+    - "document_ids"
+
+sequence:
+  - order: 1
+    id: "current_code_replay"
+    config: "configs/eval_conan_current_replay100_20260820.yaml"
+    run_name: "conan_current_replay100_20260820"
+    action: "generate_then_official_score"
+    gate_after: "manual_result_review"
+  - order: 2
+    id: "lexical_a"
+    config: "configs/eval_conan_lexical_a100_20260820.yaml"
+    run_name: "conan_lexical_a100_20260820"
+    action: "generate_then_official_score"
+    start_condition: "current_code_replay_reviewed_and_approved"
+
+launch:
+  queued: false
+  start_authorized: false
+  queue_script: "scripts/queue_current_replay_after_bge.sh"
+  launcher: "scripts/launch_queued_replay.sh"

@@ -1,0 +1,82 @@
+# New vector library v2 (2026-08-06): multilingual-e5-large
+# - Embedding: local GPU sentence-transformers model /data06/embedding-models/multilingual-e5-large
+#   (XLM-RoBERTa-large, 1024-dim, 512-token limit, requires query:/passage: prefixes)
+# - Chunking: hierarchical-v1 (unchanged; chunks.jsonl reused from full_es_qwen3_emb,
+#   patched for e5 tokenizer: all chunks <= 480 e5 tokens)
+# Build: python -m src.build_es_index configs/full_es_e5.yaml
+corpus_dir: "corpus/all_documents"
+questions_file: "questions.jsonl"
+output_dir: "outputs"
+index_dir: ".index_cache/full_es_e5"
+index_backend: "elasticsearch"
+
+chunking:
+  method: "fixed"
+  version: "hierarchical-v1"
+  manifest_enabled: true
+  chunk_size: 384
+  chunk_overlap: 64
+
+embedding:
+  provider: "sentence_transformers"
+  model_name: "/data06/embedding-models/multilingual-e5-large"
+  device: "cuda"
+  batch_size: 128
+  dimension: 1024
+  fp16: true
+  query_prefix: "query: "
+  document_prefix: "passage: "
+
+elasticsearch:
+  url: "http://127.0.0.1:9200"
+  index_name: "enterprise-rag-e5-large-v1"
+  alias_name: "enterprise-rag-e5-large"
+  bulk_size: 256
+  request_timeout: 180
+
+llm:
+  provider: "openai_compatible"
+  api_base: "http://10.72.100.35:7777/v1"
+  api_key_env: "LARK_API_KEY"
+  model_name: "lark"
+  temperature: 0.0
+  max_tokens: 4096
+  timeout: 180
+  retry_attempts: 3
+  retry_backoff_seconds: 1.0
+  extra_body:
+    chat_template_kwargs:
+      enable_thinking: false
+
+retrieval:
+  method: "hybrid"
+  top_k: 30
+  candidate_k: 240
+  fusion_method: "rrf"
+  rrf_k: 60
+  dense_weight: 0.3
+  reranker:
+    enabled: false
+    model_name: ""
+    candidate_k: 30
+    top_n: 10
+  parent_expansion:
+    enabled: false
+    neighbor_chunks: 1
+
+generation:
+  max_context_chunks: 10
+  max_chunks_per_doc: 4
+  max_document_ids: 10
+
+evaluation:
+  enabled: false
+
+pipeline:
+  name: "baseline_full_es_e5"
+  source_filter: []
+  source_filter_mode: "exact"
+  overwrite_index: false
+  resume: true
+  resume_legacy: false
+  checkpoint_interval: 1

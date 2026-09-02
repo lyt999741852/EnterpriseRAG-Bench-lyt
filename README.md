@@ -1,78 +1,101 @@
-# EnterpriseRAG-Bench 本地 RAG 基线
+# EnterpriseRAG-Bench
 
-当前仓库包含可运行的 BM25、Dense 和 Hybrid RAG 流水线。默认 GitHub 子集使用严格来源筛选，共 39 道 GitHub-only 问题；完整配置处理全部 500 道问题。
+企业知识库 RAG 评测与优化项目。仓库提供从语料预处理、混合检索、重排序、证据选择、答案生成到官方评测的完整流水线，并保留可复现的配置、实验记录与历史决策依据。
 
-## 已实现的可靠性能力
+当前候选主线为 **BGE-small + BM25/dense hybrid RRF + remote reranker + PageIndex + bounded fail-open evidence admission**。最新 F500 候选结果为 correctness **64.00%**、completeness **67.63%**、combined **58.88**、document recall **64.49%**；指标口径、限制与复现材料见[当前状态](docs/CURRENT_STATUS_20260902.md)。
 
-- SQLite 文档 manifest，记录文件状态、大小、时间、内容哈希和失败原因；
-- 单文件读取失败自动隔离，不再终止整个索引任务；
-- 确定性 chunk ID、预处理 checkpoint 和中断恢复；
-- 语料、切块、Embedding 和索引配置指纹，防止错误复用缓存；
-- 分批生成向量并增量加入 FAISS，避免完整向量矩阵常驻内存；
-- BM25 / Dense / RRF Hybrid，可选 Cross-Encoder reranker 和相邻 chunk 扩展；
-- 答案原子保存、成功题复用、失败题重试和提交格式校验；
-- 生成答案只提交真正进入 LLM 上下文的父文档 ID；
-- 官方评测使用 `--results-file`、`--parallelism` 和 `--no-correction` 参数。
+## 能力概览
 
-## 常用命令
+- SQLite manifest、内容指纹、checkpoint 与断点恢复，保证索引构建可追溯；
+- BM25、dense、RRF hybrid、远程 reranker 与相邻 chunk 扩展；
+- 按问题文本推断检索模式，使用 PageIndex 进行证据树、节点审计和有界多跳检索；
+- 证据选择、事实核验、答案来源审计与提交格式校验；
+- 固定题集、独立配置、输出目录与评分报告，支持单变量实验和结果复现。
 
-运行自动化测试：
+## 流程
+
+```text
+语料 → 切块 / manifest / 向量索引
+    → BM25 + dense 检索 → RRF → reranker
+    → PageIndex / evidence selector → 生成与事实核验
+    → answers.jsonl → 官方评测与实验报告
+```
+
+## 快速开始
+
+### 1. 安装依赖
+
+建议使用独立 Python 环境，并安装项目依赖：
+
+```powershell
+python -m pip install -r requirements.txt
+```
+
+完整运行需要可访问的 Elasticsearch、embedding、reranker、LLM 与官方评测环境。服务地址和认证信息必须通过安全环境变量提供，禁止写入配置或脚本。
+
+### 2. 运行自动化测试
 
 ```powershell
 python -m unittest discover -s tests -v
 ```
 
-运行严格的 39 题 BM25 基线：
+### 3. 执行实验
+
+选择一个已有配置运行；每次新实验必须使用独立的配置、`pipeline.name`、输出目录与 PageIndex cache，不能覆盖冻结基线。
 
 ```powershell
-$env:DEEPSEEK_API_KEY="从安全环境读取"
-python -m src.pipeline configs/default.yaml
+python -m src.pipeline configs/eval_pageindex_full500_bge_dpv4_o4p3_20260901.yaml
 ```
 
-继续内部 Qwen 实验：
+结果、题集、评分口径和复现步骤见 [F500 O4.P3 复现清单](docs/F500_BGE_DPV4_O4P3_REPRO_20260902.md)。
 
-```powershell
-$env:LARK_API_KEY="由内部网关要求的值"
-python -m src.pipeline configs/qwen_internal.yaml
-```
-
-同一配置的后续运行会保留已有成功答案，仅重试空答案和 `[LLM_ERROR: ...]`。修复后的 Qwen 实验写入新的 `baseline_qwen_fixed` 目录，避免复用旧实验中证据不一致的结果；配置默认关闭 thinking，并把输出上限提高到 4096 tokens。
-
-校验答案文件：
-
-```powershell
-python -m src.validate_submission `
-  --questions questions.jsonl `
-  --answers outputs/baseline_bm25/answers.jsonl `
-  --source github `
-  --source-mode exact
-```
-
-在 GPU 服务器上对 10,000 个 chunk 做 Embedding 压测：
-
-```powershell
-python -m src.benchmark_embedding `
-  --config configs/full_gpu.yaml `
-  --chunks 10000 `
-  --output outputs/embedding_benchmark.json
-```
-
-## 缓存布局
+## 目录结构
 
 ```text
-.index_cache/
-├── demo_bm25/
-├── demo_dense/
-└── full_bge_small/
+src/                                  主 RAG 实现
+tests/                                自动化测试
+configs/                              可复现实验配置、题集清单与快照
+scripts/                              启动、诊断、远程运行与评分脚本
+docs/                                 当前说明、实验报告与历史归档
+deploy/                               部署文件
+experiments/conan_rag/                隔离的 Conan 研究快照
+packages/bge500_rag_pageindex_core/   BGE500 精简代码包
+packages/portable_rag/                通用轻量 RAG 示例
+rag-debug-console/                    独立调试控制台
 ```
 
-每个缓存包含 `_meta.json`、`manifest.sqlite3`、`chunks.jsonl`，以及按检索方式生成的 `bm25.pkl` 和/或 `faiss.index`。配置或语料变化后，指纹会阻止旧索引被误用。
+## 文档入口
 
-## 尚需外部环境
+| 需要了解的内容 | 入口 |
+|---|---|
+| 当前候选主线、冻结边界与下一步 | [当前状态](docs/CURRENT_STATUS_20260902.md) |
+| 可用于汇报的已验证结论 | [有效实验测试汇总](docs/VALID_EXPERIMENT_TEST_SUMMARY_20260901.md) |
+| 测试时间、结果与证据索引 | [实验时间线](docs/EXPERIMENT_TIMELINE_20260902.md) |
+| 后续单变量实验门禁 | [优化路线](docs/OPTIMIZATION_ROADMAP_20260902.md) |
+| 项目材料范围与安全排除项 | [项目移交清单](docs/PROJECT_TRANSFER_MANIFEST_20260902.md) |
+| 所有项目文档 | [文档总入口](docs/README.md) |
 
-- 完整语料的 GPU Embedding 压测和全量索引；
-- Docker/Elasticsearch 或 OpenSearch 服务；
-- 官方 `metrics_based_eval.py` 代码及 Judge API；
-- 最终 500 题生成、正式评分和排行榜提交。
+历史状态、早期计划、旧架构快照和原始台账均保留在 [docs/archive/](docs/archive/README.md)，仅用于追溯，不应替代当前结论。
 
-`questions.jsonl` 中除 `question` 外的 gold 字段只用于离线统计与评估，不能传入检索器或生成器。
+## 实验规范
+
+1. 在线链路仅使用问题文本；题型、参考答案、gold facts 与 gold document IDs 只能用于离线诊断和评分。
+2. 每次实验只改变一个机制，并记录题集、模型/judge、唯一变量、配置、输出、完成时间与结论。
+3. 不同题集、生成模型或 judge 的分数不可直接比较；系统能力优先引用同口径 F500 结果。
+4. 所有密钥、内部地址、语料、题集、索引缓存和大体积输出均不纳入项目材料。
+
+## 本地数据与缓存
+
+以下目录和文件是本地运行资产，不应作为代码或文档的一部分处理：
+
+- `corpus/`、`questions.jsonl`、`extra_questions.jsonl`；
+- `.index_cache/`、`.pageindex_cache/`、`outputs/`；
+- `.env`、压缩包、临时目录与受限历史材料。
+
+缓存目录中包含 manifest、chunk、检索索引和配置指纹。语料、切块、embedding 或索引配置变化后，应创建新的缓存而不是复用不匹配的历史产物。
+
+## 已知限制
+
+- 全量运行依赖外部服务与官方评分环境，无法仅凭本地代码完成；
+- F500 候选主线仍需独立复核，尤其需要监控 fail-open evidence admission 带来的额外引用文档；
+- Conan、轻量示例和调试控制台为独立资产，不应替代主线 `src/` 的实现与实验结论。

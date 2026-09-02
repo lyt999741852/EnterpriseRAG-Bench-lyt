@@ -1,0 +1,12 @@
+{
+  "questions": [
+    {"id": "qst_0031", "category": "基础事实", "text": "What are the company's data retention requirements?"},
+    {"id": "qst_0046", "category": "基础事实", "text": "Who approves the security policy exception?"},
+    {"id": "qst_0182", "category": "语义推理", "text": "What happens when the retention policy conflicts with a legal hold?"},
+    {"id": "qst_0208", "category": "语义推理", "text": "How does the policy distinguish a contractor from an employee?"},
+    {"id": "qst_0224", "category": "项目关联", "text": "Which project must be completed before the migration phase?"},
+    {"id": "qst_0285", "category": "项目关联", "text": "Who owns the escalation process for the Atlas rollout?"},
+    {"id": "qst_0341", "category": "完整性/约束", "text": "List every required approval for production access."},
+    {"id": "qst_0404", "category": "完整性/约束", "text": "Which requirements must all be met before a release can proceed?"}
+  ]
+}

@@ -1,0 +1,93 @@
+# New vector library v2 (2026-08-06):
+# - Chunking: hierarchical-v1 recursive chunking, 448 tokens + 32 overlap
+#   (user decision: skip phase-1 A/B samples; build directly at 448+32)
+# - Target ES: mentor-authorized 10.72.100.29:31920 (ES 7.17.8, NodePort).
+#   Retrieval on 7.17.8 requires dense_mode: script_score (see eval configs).
+# - Embedding: internal OpenAI-compatible API (10.72.55.209:7993/v1, model "embedding",
+#   dim 1792, batch 512) — replaces BAAI/bge-small-en-v1.5
+# Build with: python -m src.build_es_index configs/full_es_qwen3_emb.yaml
+corpus_dir: "corpus/all_documents"
+questions_file: "questions.jsonl"
+output_dir: "outputs"
+index_dir: ".index_cache/full_es_qwen3_emb"
+index_backend: "elasticsearch"
+
+chunking:
+  method: "fixed"
+  version: "hierarchical-v1-448"
+  manifest_enabled: true
+  chunk_size: 448
+  chunk_overlap: 32
+
+embedding:
+  provider: "openai_compatible"
+  model_name: "embedding"
+  api_base: "http://10.72.55.209:7993/v1"
+  api_key_env: "EMBEDDING_API_KEY"
+  device: "cpu"
+  batch_size: 512
+  dimension: 1792
+
+elasticsearch:
+  url: "http://10.72.100.29:31920"
+  index_name: "enterprise-rag-qwen3-emb-v2"
+  alias_name: "enterprise-rag-qwen3-emb"
+  bulk_size: 512
+  request_timeout: 180
+  shards: 16
+  dense_mode: "knn"
+  # Throughput optimization (2026-08-07): batch 32->512 + 8 concurrent
+  # embedding API requests (was ~2.6 chunks/s serial).
+  embedding_concurrency: 8
+  # Conan limits total request context to 512 tokens; use 32-chunk work
+  # groups so 8 workers can fall back to safe single-chunk requests in parallel.
+  embedding_group_size: 32
+  # One text per request avoids predictable 400s from the total-token window.
+  embedding_request_batch_size: 1
+
+llm:
+  provider: "openai_compatible"
+  api_base: "http://10.72.100.35:7777/v1"
+  api_key_env: "LARK_API_KEY"
+  model_name: "lark"
+  temperature: 0.0
+  max_tokens: 4096
+  timeout: 180
+  retry_attempts: 3
+  retry_backoff_seconds: 1.0
+  extra_body:
+    chat_template_kwargs:
+      enable_thinking: false
+
+retrieval:
+  method: "hybrid"
+  top_k: 30
+  candidate_k: 240
+  fusion_method: "rrf"
+  rrf_k: 60
+  dense_weight: 0.3
+  reranker:
+    enabled: false
+    model_name: ""
+    candidate_k: 30
+    top_n: 10
+  parent_expansion:
+    enabled: false
+    neighbor_chunks: 1
+
+generation:
+  max_context_chunks: 10
+  max_chunks_per_doc: 4
+  max_document_ids: 10
+
+evaluation:
+  enabled: false
+
+pipeline:
+  name: "baseline_full_es_qwen3_emb"
+  source_filter: []
+  source_filter_mode: "exact"
+  overwrite_index: false
+  resume: true
+  resume_legacy: false
+  checkpoint_interval: 1

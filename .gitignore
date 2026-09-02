@@ -14,6 +14,7 @@ demo_corpus/
 confluence/
 slice_inspect/
 *.zip
+*.7z
 
 # Official evaluation questions (answer leakage - never commit)
 questions.jsonl
@@ -24,3 +25,6 @@ extra_questions.jsonl
 .codex/
 .workbuddy/
 .pageindex_cache/
+
+# Historical handoff containing legacy service credentials. Keep locally for audit only.
+docs/archive/restricted/

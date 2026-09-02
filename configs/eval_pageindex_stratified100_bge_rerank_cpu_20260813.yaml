@@ -1,0 +1,210 @@
+# Stratified 100-question evaluation of the current best BGE chain.
+# Selection exactly follows the full 500-question type distribution and keeps
+# all 50 questions from the established baseline for matched-repeat analysis.
+corpus_dir: "corpus/all_documents"
+questions_file: "questions.jsonl"
+output_dir: "outputs"
+index_dir: ".index_cache/full_es_bge_small"
+index_backend: "elasticsearch"
+
+chunking:
+  method: "fixed"
+  version: "fixed-v2"
+  manifest_enabled: true
+  chunk_size: 512
+  chunk_overlap: 0
+
+embedding:
+  provider: "sentence_transformers"
+  model_name: "BAAI/bge-small-en-v1.5"
+  device: "cpu"
+  batch_size: 64
+  dimension: 384
+  revision: "5c38ec7c405ec4b44b94cc5a9bb96e735b38267a"
+
+elasticsearch:
+  url: "http://127.0.0.1:9200"
+  index_name: "enterprise-rag-bge-small-v1"
+  alias_name: "enterprise-rag-bge-small"
+  bulk_size: 256
+  request_timeout: 180
+
+llm:
+  provider: "openai_compatible"
+  api_base: "http://10.72.100.35:7777/v1"
+  api_key_env: "LARK_API_KEY"
+  model_name: "lark"
+  temperature: 0.0
+  max_tokens: 4096
+  timeout: 180
+  retry_attempts: 3
+  retry_backoff_seconds: 1.0
+  extra_body:
+    chat_template_kwargs:
+      enable_thinking: false
+
+retrieval:
+  method: "hybrid"
+  top_k: 30
+  candidate_k: 240
+  fusion_method: "rrf"
+  rrf_k: 60
+  dense_weight: 0.3
+  reranker:
+    enabled: true
+    model_name: "rerank"
+    api_base: "http://10.72.55.209:7992/v1"
+    api_key_env: "EMBEDDING_API_KEY"
+    candidate_k: 120
+    top_n: 30
+    timeout: 120
+  parent_expansion:
+    enabled: false
+
+generation:
+  max_context_chunks: 10
+  max_chunks_per_doc: 4
+  max_document_ids: 10
+  evidence_selection_enabled: true
+  evidence_selection_mode: "precision_v3"
+  evidence_selection_candidate_chunks: 24
+  evidence_selection_max_chunks: 10
+  evidence_selection_anchor_chunks: 0
+  evidence_selection_fallback_chunks: 0
+  evidence_selection_fail_closed: true
+  fact_verification_enabled: true
+  final_answer_audit_enabled: true
+
+pageindex:
+  enabled: true
+  home: "/opt/enterprise-rag-bench/PageIndex"
+  manifest_path: ".pageindex_manifests/bge_corpus_mapping_20260813.sqlite3"
+  cache_dir: ".pageindex_cache/stratified100_bge_rerank_cpu_20260813"
+  min_words: 350
+  min_headings: 2
+  max_candidate_documents: 24
+  max_nodes_per_document: 40
+  node_preview_chars: 800
+  max_followup_queries: 4
+  max_hops: 2
+  require_node_audit: true
+  fallback_to_es_on_incomplete: true
+  max_partial_full_document_chars: 18000
+  semantic_event_full_max_chars: 40000
+
+evaluation:
+  enabled: false
+
+pipeline:
+  name: "pageindex_stratified100_bge_rerank_cpu_20260813"
+  source_filter: []
+  source_filter_mode: "exact"
+  question_ids:
+    # Established matched 50-question baseline subset.
+    - "qst_0013"
+    - "qst_0018"
+    - "qst_0022"
+    - "qst_0030"
+    - "qst_0035"
+    - "qst_0041"
+    - "qst_0050"
+    - "qst_0056"
+    - "qst_0079"
+    - "qst_0082"
+    - "qst_0093"
+    - "qst_0107"
+    - "qst_0112"
+    - "qst_0116"
+    - "qst_0119"
+    - "qst_0125"
+    - "qst_0154"
+    - "qst_0169"
+    - "qst_0184"
+    - "qst_0197"
+    - "qst_0211"
+    - "qst_0231"
+    - "qst_0236"
+    - "qst_0241"
+    - "qst_0251"
+    - "qst_0271"
+    - "qst_0272"
+    - "qst_0280"
+    - "qst_0291"
+    - "qst_0298"
+    - "qst_0301"
+    - "qst_0322"
+    - "qst_0324"
+    - "qst_0328"
+    - "qst_0341"
+    - "qst_0350"
+    - "qst_0356"
+    - "qst_0362"
+    - "qst_0386"
+    - "qst_0390"
+    - "qst_0406"
+    - "qst_0413"
+    - "qst_0416"
+    - "qst_0432"
+    - "qst_0447"
+    - "qst_0459"
+    - "qst_0470"
+    - "qst_0480"
+    - "qst_0491"
+    - "qst_0498"
+    # Deterministic systematic additions within each question-type stratum.
+    - "qst_0005"
+    - "qst_0015"
+    - "qst_0027"
+    - "qst_0038"
+    - "qst_0048"
+    - "qst_0059"
+    - "qst_0069"
+    - "qst_0078"
+    - "qst_0089"
+    - "qst_0099"
+    - "qst_0109"
+    - "qst_0122"
+    - "qst_0132"
+    - "qst_0141"
+    - "qst_0150"
+    - "qst_0161"
+    - "qst_0171"
+    - "qst_0180"
+    - "qst_0190"
+    - "qst_0199"
+    - "qst_0208"
+    - "qst_0218"
+    - "qst_0226"
+    - "qst_0237"
+    - "qst_0247"
+    - "qst_0256"
+    - "qst_0265"
+    - "qst_0276"
+    - "qst_0285"
+    - "qst_0295"
+    - "qst_0306"
+    - "qst_0315"
+    - "qst_0326"
+    - "qst_0336"
+    - "qst_0346"
+    - "qst_0357"
+    - "qst_0367"
+    - "qst_0376"
+    - "qst_0385"
+    - "qst_0396"
+    - "qst_0405"
+    - "qst_0436"
+    - "qst_0445"
+    - "qst_0417"
+    - "qst_0426"
+    - "qst_0485"
+    - "qst_0495"
+    - "qst_0455"
+    - "qst_0465"
+    - "qst_0475"
+  overwrite_index: false
+  read_existing_index: true
+  resume: true
+  resume_legacy: false
+  checkpoint_interval: 1
+  question_parallelism: 1

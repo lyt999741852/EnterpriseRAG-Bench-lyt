@@ -1,0 +1,11 @@
+pyyaml>=6.0
+numpy>=1.26
+rank-bm25>=0.2.2
+faiss-cpu>=1.8
+
+# Required only when using sentence_transformers/fastembed or local reranking.
+sentence-transformers>=3.0
+fastembed>=0.8
+
+# Required only for langchain_conan_recursive chunking.
+langchain-text-splitters>=1.1,<1.2

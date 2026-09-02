@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>RAG 联调控制台</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="topbar"><strong><span>RAG</span> 联调控制台</strong><div id="health">正在检查服务…</div></header>
+      <div class="layout">
+        <aside>
+          <nav aria-label="页面导航"><button class="nav active" data-view="chat">单题联调</button><button class="nav" data-view="batch">批量测试</button><button class="nav" data-view="history">运行历史</button></nav>
+          <label class="search-label" for="catalog-search">500 题题库</label>
+          <input id="catalog-search" type="search" placeholder="搜索题号或问题">
+          <div id="catalog" aria-live="polite"></div>
+          <div class="test-buttons"><button id="daily-test">日常 50 题</button><button id="full-test">全量 500 题</button></div>
+        </aside>
+        <main>
+          <section id="chat-view" class="view active">
+            <div class="heading"><div><h1>单题联调</h1><p>只使用问题文本；结果记录实际调用的已发布 RAG 版本。</p></div><button id="clear-chat" class="secondary">清空会话</button></div>
+            <div class="mode-row"><label for="mode">运行模式</label><select id="mode"><option value="live">当前联调版本（live）</option><option value="pinned">固定版本（pinned）</option></select><label for="version">RAG 版本</label><select id="version"></select><span id="mode-help"></span></div>
+            <section id="conversation" class="conversation" aria-live="polite"><div class="empty">从左侧题库选择，或在下方输入问题开始联调。</div></section>
+            <form id="chat-form"><textarea id="question" rows="3" placeholder="输入一个问题…"></textarea><div class="form-actions"><small>Mock 调试网关；尚未连接当前 RAG 流水线。</small><button type="submit">发送并运行</button></div></form>
+          </section>
+          <section id="history-view" class="view"><div class="heading"><div><h1>运行历史</h1><p>每条记录含运行模式和 RAG 版本指纹。</p></div><button id="refresh-history" class="secondary">刷新</button></div><div id="history" class="history"></div></section>
+          <section id="batch-view" class="view"><div class="heading"><div><h1>批量测试</h1><p>任务进入独立队列；批量运行会锁定 <code>rag-evaluation</code>。</p></div><button id="refresh-batches" class="secondary">刷新</button></div><div id="batches" class="history"></div></section>
+        </main>
+      </div>
+    </div>
+    <dialog id="notice"><p id="notice-message"></p><button id="notice-close">知道了</button></dialog>
+    <script src="app.js"></script>
+  </body>
+</html>

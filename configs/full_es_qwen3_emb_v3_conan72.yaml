@@ -1,0 +1,91 @@
+# Conan-safe v3 vector build.
+# Empirical calibration on 1,000 real corpus documents (2026-08-12):
+# - 128+16: 26 / 6,641 requests exceeded Conan's 512-token limit.
+# - 96+16:   2 / 9,105 exceeded.
+# - 80+16:   1 / 11,262 exceeded.
+# - 72+16:   0 / 12,777 exceeded.
+# This uses the project's whitespace-token chunker. The conservative size is
+# intentional because Conan-embedding-v1's tokenizer is materially denser
+# than the local chunk counter on URLs, code and structured content.
+corpus_dir: "corpus/all_documents"
+questions_file: "questions.jsonl"
+output_dir: "outputs"
+index_dir: ".index_cache/full_es_qwen3_emb_v3_conan72"
+index_backend: "elasticsearch"
+
+chunking:
+  method: "fixed"
+  version: "conan-v3-72-16"
+  manifest_enabled: true
+  chunk_size: 72
+  chunk_overlap: 16
+
+embedding:
+  provider: "openai_compatible"
+  model_name: "embedding"
+  api_base: "http://10.72.55.209:7993/v1"
+  api_key_env: "EMBEDDING_API_KEY"
+  device: "cpu"
+  batch_size: 512
+  dimension: 1792
+
+elasticsearch:
+  url: "http://10.72.100.29:31920"
+  index_name: "enterprise-rag-qwen3-emb-v3-conan72"
+  alias_name: "enterprise-rag-qwen3-emb-v3"
+  bulk_size: 512
+  request_timeout: 180
+  shards: 16
+  # ES 7.17.8 evaluation/retrieval configs must use script_score.
+  dense_mode: "knn"
+  embedding_concurrency: 8
+  embedding_group_size: 32
+  # One input per request: Conan's 512-token limit applies to total request context.
+  embedding_request_batch_size: 1
+
+llm:
+  provider: "openai_compatible"
+  api_base: "http://10.72.100.35:7777/v1"
+  api_key_env: "LARK_API_KEY"
+  model_name: "lark"
+  temperature: 0.0
+  max_tokens: 4096
+  timeout: 180
+  retry_attempts: 3
+  retry_backoff_seconds: 1.0
+  extra_body:
+    chat_template_kwargs:
+      enable_thinking: false
+
+retrieval:
+  method: "hybrid"
+  top_k: 30
+  candidate_k: 240
+  fusion_method: "rrf"
+  rrf_k: 60
+  dense_weight: 0.3
+  reranker:
+    enabled: false
+    model_name: ""
+    candidate_k: 30
+    top_n: 10
+  parent_expansion:
+    enabled: false
+    neighbor_chunks: 1
+
+generation:
+  max_context_chunks: 10
+  max_chunks_per_doc: 4
+  max_document_ids: 10
+
+evaluation:
+  enabled: false
+
+pipeline:
+  name: "full_es_qwen3_emb_v3_conan72"
+  source_filter: []
+  source_filter_mode: "exact"
+  overwrite_index: false
+  resume: true
+  resume_legacy: false
+  checkpoint_interval: 1

@@ -1,0 +1,59 @@
+# E5-large vector dataset built on the Conan448 document/chunk contract.
+# The tokenizer audit runs after chunk preprocessing and before any ES write.
+corpus_dir: "corpus/all_documents"
+questions_file: "questions.jsonl"
+output_dir: "outputs"
+index_dir: ".index_cache/full_es_e5_conan448"
+index_backend: "elasticsearch"
+
+chunking:
+  method: "langchain_conan_recursive"
+  version: "langchain-conan-v1-448-32-e5-audit"
+  manifest_enabled: true
+  chunk_size: 448
+  chunk_overlap: 32
+  tokenizer_api_base: "http://10.72.55.209:7993/v1"
+  tokenizer_model_name: "embedding"
+  tokenizer_api_key_env: "EMBEDDING_API_KEY"
+  tokenizer_timeout: 60
+  tokenizer_local_dir: ".index_cache/conan_tokenizer"
+
+embedding:
+  provider: "sentence_transformers"
+  model_name: "/data06/embedding-models/multilingual-e5-large"
+  device: "cuda"
+  batch_size: 64
+  dimension: 1024
+  fp16: true
+  query_prefix: "query: "
+  document_prefix: "passage: "
+
+# Leave room for special tokens and serving-side formatting. If Conan448
+# produces an E5-overlong chunk, stop before ES writes.
+e5_tokenizer_audit:
+  enabled: true
+  model_name: "/data06/embedding-models/multilingual-e5-large"
+  batch_size: 512
+  max_tokens: 512
+  safety_limit: 480
+  fail_on_unsafe: true
+  recommended_size: 384
+  recommended_overlap: 64
+
+elasticsearch:
+  url: "http://127.0.0.1:9200"
+  index_name: "enterprise-rag-e5-large-conan448-v1"
+  alias_name: "enterprise-rag-e5-large-conan448"
+  bulk_size: 256
+  request_timeout: 180
+  shards: 16
+  dense_mode: "script_score"
+  embedding_concurrency: 1
+  embedding_group_size: 64
+  embedding_request_batch_size: 1
+
+pipeline:
+  name: "full_es_e5_conan448"
+  overwrite_index: false
+  resume: true
+  checkpoint_interval: 1
